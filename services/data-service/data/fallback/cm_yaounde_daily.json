@@ -1,0 +1,3 @@
+{"altitude_m": 588.63, "synthetique": false, "lat": 3.813, "lon": 11.452,
+ "source": "NASA POWER, point journalier, communauté AG, 1996-2025 (cellule 4,0° N / 11,5° E), téléchargé le 15/11/2026",
+ "note": "Jeu de secours réel (Plan B, fallback_local). L'altitude est celle de la cellule POWER, pas de la parcelle."}

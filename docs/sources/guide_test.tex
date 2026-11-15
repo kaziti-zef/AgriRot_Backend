@@ -1,0 +1,495 @@
+\documentclass[11pt,a4paper]{article}
+\input{style.tex}
+\lhead{\normalfont\small\color{gris}AgroRot — Installer et tester le backend}
+\rhead{\normalfont\small\color{gris}NASA Space Apps 2026 · Field Shift}
+
+\begin{document}
+
+\thispagestyle{empty}
+\vspace*{2cm}
+{\color{vert}\Huge\bfseries AgroRot}\par\vspace{6pt}
+{\LARGE Installer et tester le backend}\par\vspace{12pt}
+{\large Guide pas à pas pour vérifier que tout fonctionne,\\ avec les solutions aux problèmes courants}\par
+\vspace{1.2cm}
+
+\begin{idee}[Le plus court chemin (15 minutes)]
+\begin{enumerate}
+\item Installer Python 3.12 (partie~\ref{sec:prerequis}).
+\item Installer les dépendances et lancer les 3 services (partie~\ref{sec:lancer}).
+\item Lancer \texttt{python scripts/tester\_backend.py} : \textbf{44 vérifications} doivent afficher \texttt{OK}
+(partie~\ref{sec:recette}).
+\end{enumerate}
+Si une étape échoue, chercher le message dans la partie~\ref{sec:depannage} « Dépannage ».
+\end{idee}
+
+\begin{attention}[Et la démo ?]
+Oui, elle est fournie, à la racine du projet (pas dans \texttt{services/backend}) :
+\texttt{scripts/preparer\_demo.py} crée les comptes, la ferme, la parcelle de Mbankomo et lance un premier calcul ;
+\texttt{docs/demo.md} donne le déroulé de 5 minutes devant le jury. Voir la partie~\ref{sec:demo}.
+\end{attention}
+
+\vfill
+{\small\color{gris}Les commandes sont données pour Windows (PowerShell) et pour Linux/macOS quand elles diffèrent.
+Toutes se lancent depuis le dossier racine du projet, \texttt{agrorot}, sauf indication contraire.}
+
+\newpage
+\tableofcontents
+\newpage
+
+% =====================================================================
+\section{Comment le backend est organisé}
+
+Le backend est fait de \textbf{trois petits programmes} (des « services ») qui se parlent :
+
+\begin{center}
+\begin{tikzpicture}[
+  svc/.style={rectangle,rounded corners=3pt,draw=vert,fill=vertclair,thick,minimum width=3.8cm,minimum height=1.25cm,align=center,font=\small},
+  ext/.style={rectangle,rounded corners=3pt,draw=bleu,fill=bleuclair,thick,minimum width=3.2cm,minimum height=1cm,align=center,font=\small},
+  fl/.style={{Latex[length=2.3mm]}-{Latex[length=2.3mm]},thick,gris}]
+\node[ext] (front) {Frontend Next.js\\ou scripts de test};
+\node[svc,below=0.8cm of front] (back) {\textbf{backend}\\port 8000 (public)};
+\node[svc,below left=1cm and 0.2cm of back] (core) {\textbf{agrorot-core}\\port 8002\\(moteur de scoring)};
+\node[svc,below right=1cm and 0.2cm of back] (data) {\textbf{data-service}\\port 8001\\(données NASA)};
+\node[ext,below=0.8cm of data] (nasa) {NASA POWER,\\Open-Meteo, Meteomatics};
+\node[ext,left=0.5cm of back] (db) {Base SQLite\\\texttt{agrorot.db}};
+\draw[fl] (front) -- (back); \draw[fl] (back) -- (core); \draw[fl] (back) -- (data); \draw[fl] (data) -- (nasa); \draw[fl] (db) -- (back);
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{2.9cm}L{1.3cm}Y}
+\toprule
+\textbf{Service} & \textbf{Port} & \textbf{Rôle} \\
+\midrule
+backend & 8000 & L'API utilisée par le frontend : comptes, fermes, parcelles, saisies, calculs, sauvegardes, PDF, surveillance, notifications. Seul service ouvert à l'extérieur. \\
+agrorot-core & 8002 & Le moteur de scoring : propose, note et explique les rotations. Ne garde aucune donnée. \\
+data-service & 8001 & Télécharge et met en cache le climat NASA POWER (30 ans), calcule l'ET0, fournit les prévisions. Contient la série de secours de Yaoundé. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Les trois doivent tourner en même temps. Deux façons de les lancer : \textbf{avec Python} (trois terminaux,
+recommandé pour développer et tester) ou \textbf{avec Docker} (une seule commande, recommandé pour le serveur).
+
+% =====================================================================
+\section{Ce qu'il faut installer}\label{sec:prerequis}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{3.6cm}Y}
+\toprule
+\textbf{Outil} & \textbf{Détails} \\
+\midrule
+\textbf{Python 3.12} (recommandé) & \url{https://www.python.org/downloads/}. Sous Windows, cocher \textbf{« Add python.exe to PATH »} à l'installation. Python 3.11 ou 3.13 fonctionnent aussi en principe ; 3.12 est la version des images Docker, donc la plus sûre. \\
+Espace disque & Environ 600 Mo pour les dépendances Python, 1,5 Go avec Docker. \\
+Internet & Nécessaire pour l'installation. Ensuite le backend marche aussi hors ligne (série NASA de secours, prévisions simulées). \\
+Docker Desktop (option B) & \url{https://www.docker.com/products/docker-desktop/}, avec Docker Compose 2.24 ou plus récent. \\
+Un éditeur de texte & Pour modifier le fichier \texttt{.env}. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Vérifier Python :
+\begin{code}
+python --version          # doit afficher Python 3.12.x
+# Windows, si plusieurs versions : py -3.12 --version
+\end{code}
+
+% =====================================================================
+\section{Installer et lancer}\label{sec:lancer}
+
+\subsection{Option A — Avec Python (trois terminaux)}
+
+\textbf{1. Créer un environnement Python et installer les dépendances (une seule fois)}
+
+Depuis le dossier \texttt{agrorot} :
+\begin{code}
+# Windows (PowerShell)
+py -3.12 -m venv .venv
+.venv\textbackslash{}Scripts\textbackslash{}Activate.ps1
+# Linux / macOS
+python3.12 -m venv .venv
+source .venv/bin/activate
+
+# Les deux
+python -m pip install --upgrade pip
+pip install -r services/agrorot-core/requirements.txt -r services/data-service/requirements.txt -r services/backend/requirements.txt
+\end{code}
+
+Un seul environnement pour les trois services suffit (et il est nécessaire pour les tests du backend, qui lancent
+eux-mêmes les deux autres services). Compter 2 à 5 minutes.
+
+\textbf{2. Lancer les trois services}, chacun dans son propre terminal, \textbf{environnement activé} (refaire
+\texttt{Activate.ps1} ou \texttt{source .venv/bin/activate} dans chaque nouveau terminal) :
+
+\begin{code}
+# Terminal 1 : moteur
+cd services/agrorot-core
+uvicorn app.main:app --port 8002
+
+# Terminal 2 : données
+cd services/data-service
+uvicorn app.main:app --port 8001
+
+# Terminal 3 : API publique
+cd services/backend
+uvicorn app.main:app --port 8000
+\end{code}
+
+Chaque terminal doit afficher \texttt{Uvicorn running on http://127.0.0.1:800x}. Laisser les trois ouverts.
+
+\begin{attention}[Pour tester hors ligne, ou pour voir des alertes de surveillance]
+Lancer le data-service (terminal 2) avec ces variables avant la commande \texttt{uvicorn} :
+\begin{code}
+# Windows (PowerShell)
+$env:POWER_SIMULE="1"; $env:PREVISION_SIMULEE="sec"
+# Linux / macOS
+export POWER_SIMULE=1 PREVISION_SIMULEE=sec
+\end{code}
+\texttt{POWER\_SIMULE=1} remplace NASA POWER par une série simulée, et \texttt{PREVISION\_SIMULEE=sec} remplace la
+prévision par 20 jours sans pluie. Les autres valeurs possibles sont \texttt{pluie\_forte}, \texttt{chaleur} et
+\texttt{normal}. Sans ces variables, ce sont les vraies données (Internet requis, sinon la série de secours est utilisée).
+\end{attention}
+
+\subsection{Option B — Avec Docker (une commande)}
+
+\begin{code}
+# Windows : copy .env.example .env      Linux/macOS : cp .env.example .env
+docker compose up -d --build
+docker compose ps                  # les 3 services doivent être "running"
+docker compose logs -f backend     # voir les messages du backend (Ctrl+C pour quitter)
+\end{code}
+
+Le premier lancement télécharge environ 200 Mo et prend quelques minutes. Seul le port 8000 (backend) est ouvert.
+Pour les scripts de test de la partie~\ref{sec:recette}, il faut aussi Python sur la machine avec
+\texttt{pip install httpx}.
+
+Arrêter : \texttt{docker compose down}. Tout effacer (base et cache climatique compris) : \texttt{docker compose down -v}.
+
+\subsection{Première vérification : la santé}
+
+Ouvrir \url{http://localhost:8000/api/v1/health} dans un navigateur :
+\begin{code}
+\{"status":"ok","components":\{"database":"ok","engine":"ok","nasa_power":"ok","cache":"ok"\}, ...\}
+\end{code}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{3cm}Y}
+\toprule
+\textbf{Composant} & \textbf{Si ce n'est pas « ok »} \\
+\midrule
+database & Problème de base SQLite (droits d'écriture du dossier, chemin \texttt{DATABASE\_URL}). \\
+engine & agrorot-core ne tourne pas ou pas sur le port 8002. \\
+cache & data-service ne tourne pas ou pas sur le port 8001. \\
+nasa\_power & NASA POWER injoignable (pas d'Internet, pare-feu). \textbf{Ce n'est pas bloquant} : le statut global passe à « degraded », mais les calculs utilisent le cache ou la série de secours. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Une documentation interactive de toute l'API est aussi disponible sur \url{http://localhost:8000/docs}.
+
+% =====================================================================
+\section{Niveau 1 — Les tests automatiques}
+
+Chaque service a ses propres tests. Ils ne demandent \textbf{ni Internet ni services lancés} (le backend démarre
+lui-même un moteur et un data-service de test). Environnement activé :
+
+\begin{code}
+cd services/agrorot-core
+python -m pytest -q          # attendu : 36 passed
+cd ../data-service
+python -m pytest -q          # attendu : 18 passed
+cd ../backend
+python -m pytest -q          # attendu : 18 passed (environ 10 s)
+\end{code}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{2.8cm}Y}
+\toprule
+\textbf{Suite} & \textbf{Ce qu'elle vérifie} \\
+\midrule
+agrorot-core (36) & Règles C0–C7, six notes, générateur, alternative différente, modifications manuelles, scénarios « et si », et \textbf{8 tests sur la vraie série NASA de Mbankomo} (classements agronomiques qui doivent rester vrais). \\
+data-service (18) & Lecture des réponses NASA POWER, ET0 Penman-Monteith (exemple 18 de la FAO : 3,9 mm/jour), qualité, saisons, plan B (cache puis secours), prévisions Open-Meteo et Meteomatics. \\
+backend (18) & Parcours complet : comptes, rôles, fermes, membres, parcelles, saisies, calculs, sauvegarde, PDF, surveillance, notifications, erreurs, langue anglaise, panne du moteur. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% =====================================================================
+\section{Niveau 2 — La chaîne données → moteur}
+
+Vérifie, sans le backend, que le data-service fabrique 30 ans de climat et que le moteur en tire 3 stratégies :
+
+\begin{code}
+python scripts/verifier_chaine.py           # NASA POWER simulé, hors ligne
+python scripts/verifier_chaine.py --reel    # VRAI appel à NASA POWER (Internet requis, jusqu'à 2 min)
+\end{code}
+
+Avec \texttt{--reel}, on doit voir \texttt{statut=live synthetique=False}, 360 mois, environ 1\,458 mm de
+pluie par an à Mbankomo, puis les 3 stratégies. C'est le test qui prouve que les données NASA arrivent bien.
+
+% =====================================================================
+\section{Niveau 3 — Le test de recette complet (recommandé)}\label{sec:recette}
+
+Les trois services doivent tourner (partie~\ref{sec:lancer}). Dans un quatrième terminal :
+
+\begin{code}
+python scripts/tester_backend.py                         # backend local
+python scripts/tester_backend.py --url http://IP:8000    # serveur distant
+python scripts/tester_backend.py --garder                # garder les données créées
+\end{code}
+
+Le script joue le rôle d'un agriculteur et d'un conseiller et passe par \textbf{toutes les fonctions} de l'API. Il
+crée ses propres comptes (une adresse différente à chaque fois) et supprime sa ferme à la fin : il ne touche pas
+aux données de démo. Résultat attendu (extrait) :
+
+\begin{code}
+1. Santé
+  OK     le backend répond  (ok)
+  OK     moteur (agrorot-core)  (ok)
+...
+7. Stratégies
+  OK     calcul des 3 stratégies  (1.1 s)
+         Rotation actuelle (référence)                 66.1  ['mais', 'mais', 'manioc', ...]
+         Stratégie recommandée (économie d'eau d'abord) 86.3  ['arachide', 'mais', 'mucuna', ...]
+  OK     la recommandée fait mieux que l'existante  (66.1 -> 86.3)
+  OK     scénario « et si » (−30 % de pluie, +2 °C)  (existante 57.5, recommandée 86.5)
+...
+9. Surveillance et notifications
+  OK     vérification au 2027-03-10  (météo simulated ; SOWING_DELAY, SEASON_ANOMALY)
+  OK     vérification au 2027-04-20  (météo simulated ; WATER_STRESS, SEASON_ANOMALY)
+...
+44/44 vérifications réussies.
+Le backend fonctionne.
+\end{code}
+
+\begin{attention}[Les chiffres varient]
+Les notes et les cultures dépendent des données : série simulée (\texttt{POWER\_SIMULE=1}), série réelle, ou série
+de secours. Ce qui doit rester vrai : la recommandée fait mieux que l'existante, aucune culture exclue (gombo)
+n'est proposée, et le scénario sec fait baisser l'existante plus que la recommandée.
+\end{attention}
+
+\subsection*{Ce que couvre le test de recette}
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{L{3.3cm}Y}
+\toprule
+\textbf{Partie} & \textbf{Vérifications} \\
+\midrule
+Santé & base, moteur, cache ; NASA POWER signalé à titre d'information \\
+Comptes & inscription, connexion, mauvais mot de passe refusé, profil, renouvellement du jeton, accès sans jeton refusé \\
+Référentiel & régions, cultures de Yaoundé \\
+Ferme et parcelle & création, ajout d'un conseiller, invitation, polygone invalide refusé, droits du conseiller limités \\
+Diagnostic & 12 mois de climat NASA pour la parcelle \\
+Saisies & sol/eau/pratiques, conflit de version (deux personnes modifient en même temps), valeur impossible refusée, historique, priorités \\
+Stratégies & 3 stratégies, explications, culture exclue jamais proposée, scénario « et si », scénario hors limites refusé, culture modifiée à la main, relecture du calcul, réponses en anglais \\
+Sauvegarde & sauvegarde, note de validation du conseiller, historique, PDF \\
+Surveillance & rotation surveillée, vérification en fenêtre de semis puis culture en place, notifications du conseiller, « tout marquer comme lu » \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% =====================================================================
+\section{Niveau 4 — Préparer et jouer la démo}\label{sec:demo}
+
+\begin{code}
+python scripts/preparer_demo.py                  # comptes, ferme, parcelle, saisies, 1er calcul
+python scripts/preparer_demo.py --surveillance   # + sauvegarde et alertes de surveillance
+\end{code}
+
+Le script peut être relancé sans risque (il ne crée pas de doublon). Il crée :
+\begin{itemize}
+\item l'agriculteur \texttt{demo@agrorot.cm} et le conseiller \texttt{conseiller@agrorot.cm}, mot de passe
+\texttt{demo-agrorot-2026} ;
+\item la « Ferme de Mbankomo » et la « Parcelle Bas-Fond Nord » avec un sol, un historique (maïs, maïs, manioc), des
+priorités (économiser l'eau d'abord) et le gombo exclu.
+\end{itemize}
+
+Le premier calcul télécharge 30 ans de NASA POWER si le cache est vide (jusqu'à 2 minutes) : \textbf{le lancer la
+veille de la présentation}, les calculs suivants prennent environ une seconde. Le déroulé conseillé devant le jury
+(8 étapes, 5 minutes) est dans \texttt{docs/demo.md}.
+
+\begin{attention}[Surveillance pendant la démo]
+En novembre, la rotation proposée commence en mars : il n'y a rien à surveiller « aujourd'hui ». L'option
+\texttt{--surveillance} simule deux dates (fenêtre de semis, puis un mois après) pour que des notifications existent.
+Pour des alertes certaines, lancer le data-service avec \texttt{PREVISION\_SIMULEE=sec}. On peut aussi déclencher
+une vérification à une date choisie :
+\begin{code}
+curl -X POST "http://localhost:8000/api/v1/parcels/<id_parcelle>/monitoring/run?date=2027-03-10" -H "Authorization: Bearer <jeton>"
+\end{code}
+\end{attention}
+
+% =====================================================================
+\section{Niveau 5 — Tester à la main (sans écrire de code)}
+
+Ouvrir \url{http://localhost:8000/docs}. Chaque route y est décrite et se teste avec « Try it out ».
+
+\begin{enumerate}
+\item \texttt{POST /api/v1/auth/login} avec \texttt{\{"identifier": "demo@agrorot.cm", "password": "demo-agrorot-2026"\}}.
+Copier la valeur \texttt{access\_token} de la réponse.
+\item Pour toutes les autres routes, remplir le champ \texttt{authorization} avec \texttt{Bearer } suivi du jeton.
+\item \texttt{GET /api/v1/farms}, puis \texttt{GET /api/v1/farms/\{farm\_id\}/parcels} : noter l'identifiant de la parcelle (\texttt{pcl\_…}).
+\item \texttt{POST /api/v1/parcels/\{parcel\_id\}/strategies} avec \texttt{\{"horizon\_seasons": 6\}} : les 3 stratégies, leurs notes et leurs explications.
+\item Même route avec \texttt{\{"climate\_scenario": \{"rain\_delta\_pct": -30, "temp\_delta\_c": 2, "horizon\_years": 10\}\}} : le scénario sec.
+\item \texttt{POST /api/v1/parcels/\{parcel\_id\}/strategies/save} avec l'identifiant de calcul (\texttt{computation\_id}) et \texttt{"strategy\_id": "recommended"}.
+\item \texttt{GET /api/v1/parcels/\{parcel\_id\}/strategies/saved/\{saved\_id\}/export.pdf} : la fiche PDF.
+\item \texttt{POST /api/v1/parcels/\{parcel\_id\}/monitoring/run} (avec \texttt{date=2027-03-10}), puis \texttt{GET /api/v1/notifications}.
+\end{enumerate}
+
+Le jeton d'accès expire après 60 minutes : se reconnecter (étape 1) si l'API répond \texttt{TOKEN\_EXPIRED}.
+
+% =====================================================================
+\section{Vérifier avec les vraies données}
+
+Les tests ci-dessus peuvent tourner hors ligne. Avant la présentation, vérifier aussi le fonctionnement réel :
+
+\begin{enumerate}
+\item Lancer le data-service \textbf{sans} \texttt{POWER\_SIMULE} ni \texttt{PREVISION\_SIMULEE}.
+\item \texttt{python scripts/verifier\_chaine.py --reel} : NASA POWER répond.
+\item \url{http://localhost:8000/api/v1/health} : \texttt{nasa\_power} doit être « ok ».
+\item Dans le diagnostic d'une parcelle, \texttt{data\_source\_status} doit être \texttt{live}.
+\item \texttt{POST …/monitoring/run} sans date : dans la réponse, \texttt{weather.status} doit être \texttt{live} et
+\texttt{weather.source} \texttt{open-meteo} (ou \texttt{meteomatics} si ses identifiants sont dans \texttt{.env}).
+\end{enumerate}
+
+% =====================================================================
+\section{Dépannage}\label{sec:depannage}
+
+\subsection{Installation}
+\begin{center}
+\small
+\begin{longtable}{L{4.6cm}L{4cm}L{6.4cm}}
+\toprule
+\textbf{Problème} & \textbf{Cause probable} & \textbf{Solution} \\
+\midrule
+\endhead
+\texttt{python} n'est pas reconnu (Windows) & Python absent du PATH & Réinstaller en cochant « Add python.exe to PATH », ou utiliser \texttt{py -3.12}. \\
+\texttt{Activate.ps1} « ne peut pas être chargé » & Politique d'exécution PowerShell & \texttt{Set-ExecutionPolicy -Scope CurrentUser RemoteSigned}, puis réessayer. Ou utiliser \texttt{cmd} et \texttt{.venv\textbackslash Scripts\textbackslash activate.bat}. \\
+\texttt{pip install} échoue sur numpy, pandas, shapely ou pyproj (« building wheel », compilateur manquant) & Version de Python trop récente ou trop ancienne pour les paquets précompilés & Utiliser Python 3.12 ; mettre pip à jour (\texttt{python -m pip install -{}-upgrade pip}). \\
+\texttt{uvicorn} n'est pas reconnu & Environnement non activé dans ce terminal & Activer \texttt{.venv}, ou lancer \texttt{python -m uvicorn app.main:app -{}-port 8000}. \\
+\texttt{ModuleNotFoundError: No module named 'app'} & Commande lancée depuis le mauvais dossier & Se placer dans le dossier du service (\texttt{cd services/backend}) avant \texttt{uvicorn}. \\
+Accents ou symboles illisibles dans la console Windows & Encodage de la console & \texttt{\$env:PYTHONUTF8="1"} avant de lancer le script. \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\subsection{Lancement}
+\begin{center}
+\small
+\begin{longtable}{L{4.6cm}L{4cm}L{6.4cm}}
+\toprule
+\textbf{Problème} & \textbf{Cause probable} & \textbf{Solution} \\
+\midrule
+\endhead
+« address already in use » / « [WinError 10048] » & Le port est déjà pris (service déjà lancé, autre programme) & Fermer l'ancien terminal. Windows : \texttt{netstat -ano | findstr :8000} puis \texttt{taskkill /PID <numéro> /F}. Linux : \texttt{lsof -i :8000} puis \texttt{kill <pid>}. \\
+Le backend refuse de démarrer : « JWT\_SECRET absent, par défaut ou trop court » & \texttt{APP\_ENV=production} avec la clé d'exemple & Générer une clé : \texttt{python -c "import secrets; print(secrets.token\_urlsafe(48))"} et la mettre dans \texttt{JWT\_SECRET}. En test local, laisser \texttt{APP\_ENV=development}. \\
+Docker : « Cannot connect to the Docker daemon » & Docker Desktop n'est pas lancé & Démarrer Docker Desktop et attendre qu'il soit prêt. \\
+Docker : erreur sur \texttt{!reset} (fichier \texttt{deploy/docker-compose.prod.yml}) & Docker Compose trop ancien & Mettre à jour Docker (Compose 2.24 ou plus), ou supprimer la ligne \texttt{ports: !reset []}. \\
+Docker : le backend redémarre en boucle & Voir le message dans les journaux & \texttt{docker compose logs backend} ; souvent la clé JWT ou un \texttt{.env} absent (\texttt{cp .env.example .env}). \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\subsection{Réponses d'erreur de l'API}
+Toutes les erreurs ont la même forme : \texttt{\{"error": \{"code": …, "message": …, "details": …, "request\_id": …\}\}}.
+Le \texttt{request\_id} permet de retrouver la ligne correspondante dans les journaux du backend.
+
+\begin{center}
+\small
+\begin{longtable}{L{4.4cm}L{4.4cm}L{6.2cm}}
+\toprule
+\textbf{Code} & \textbf{Signification} & \textbf{Que faire} \\
+\midrule
+\endhead
+\texttt{CLIMATE\_DATA\_UNAVAILABLE} (503) & Le backend n'arrive pas à joindre le data-service & Vérifier que le data-service tourne sur le port 8001 (ou \texttt{DATA\_SERVICE\_URL}). \\
+\texttt{ENGINE\_UNAVAILABLE} (503) & Le moteur ne répond pas & Vérifier qu'agrorot-core tourne sur le port 8002 (ou \texttt{CORE\_SERVICE\_URL}). \\
+Premier calcul très long (jusqu'à 2 min) & Téléchargement de 30 ans de NASA POWER & Normal la première fois pour un lieu ; ensuite c'est en cache. Lancer \texttt{preparer\_demo.py} la veille. \\
+\texttt{TOKEN\_EXPIRED} / \texttt{TOKEN\_INVALID} (401) & Jeton expiré (60 min) ou absent & Se reconnecter, ou utiliser \texttt{/auth/refresh}. Dans Swagger, ne pas oublier « Bearer » devant le jeton. \\
+\texttt{TOO\_MANY\_REQUESTS} (429) & 5 mauvais mots de passe en 15 minutes & Attendre le délai indiqué (\texttt{Retry-After}) ou redémarrer le backend en test. \\
+\texttt{FORBIDDEN\_ROLE} (403) & Le rôle ne permet pas l'action (le conseiller ne modifie pas les parcelles) & Normal : utiliser le compte agriculteur. \\
+\texttt{VERSION\_CONFLICT} (409) & Quelqu'un a modifié la donnée entre-temps & Relire la ressource et renvoyer avec le bon \texttt{If-Match} (sa \texttt{version}). \\
+\texttt{VALIDATION\_ERROR} (422) & Valeur invalide (pH hors 3–10, etc.) & \texttt{details.fields} indique le champ et la raison. \\
+\texttt{INVALID\_POLYGON} (400) & Contour qui se croise, moins de 3 points, surface hors 0,01–1000 ha & Redessiner la parcelle. \\
+\texttt{PARCEL\_OVERLAP} (409) & La parcelle chevauche une autre parcelle de la ferme & Ajuster le contour. \\
+\texttt{NO\_CROP\_AVAILABLE} / \texttt{NO\_SUITABLE\_CROP} (422) & Trop de cultures exclues, ou aucune culture adaptée à ces conditions & Exclure moins de cultures ; vérifier la position de la parcelle (la région pilote est Yaoundé). \\
+\texttt{STRATEGY\_NOT\_FOUND} (404) & Calcul de plus de 24 h ou identifiant erroné & Relancer le calcul. \\
+\texttt{PRECONDITION\_FAILED} (412) sur \texttt{monitoring/run} & Aucune rotation sauvegardée pour cette parcelle & Sauvegarder une stratégie d'abord. \\
+\texttt{PDF\_GENERATION\_FAILED} (503) & reportlab absent ou erreur de génération & Réinstaller les dépendances du backend ; le frontend peut proposer l'impression du navigateur. \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\subsection{Données et surveillance}
+\begin{center}
+\small
+\begin{longtable}{L{4.6cm}L{4cm}L{6.4cm}}
+\toprule
+\textbf{Problème} & \textbf{Cause probable} & \textbf{Solution} \\
+\midrule
+\endhead
+\texttt{nasa\_power: "error"} dans la santé & Pas d'Internet, pare-feu, NASA POWER en maintenance & Pas bloquant : le diagnostic indique \texttt{fallback\_cache} ou \texttt{fallback\_local}. Vérifier l'accès à \texttt{power.larc.nasa.gov} depuis le serveur. \\
+Bandeau « données synthétiques » (\texttt{SYNTHETIC\_CLIMATE}) & \texttt{POWER\_SIMULE=1} est resté actif & Relancer le data-service sans cette variable. \\
+Surveillance : aucune alerte & Normal hors saison (la rotation commence plus tard), ou météo sans problème & Simuler une date (\texttt{?date=}) et/ou \texttt{PREVISION\_SIMULEE=sec}. \\
+\texttt{weather.status: "unavailable"} & Open-Meteo et Meteomatics injoignables & Vérifier Internet ; ajouter \texttt{METEOMATICS\_USER} et \texttt{METEOMATICS\_PASSWORD} dans \texttt{.env} ; pour une démo hors ligne, \texttt{PREVISION\_SIMULEE}. \\
+Aucune notification ne s'affiche & La même alerte a déjà été envoyée il y a moins de 7 jours, ou la personne n'est pas membre actif de la ferme & Regarder \texttt{GET /notifications} avec le compte concerné ; vérifier ses membres de ferme. \\
+« database is locked » & Plusieurs processus backend sur la même base SQLite & Lancer un seul processus backend (c'est le cas par défaut). \\
+Repartir de zéro & — & Arrêter le backend, supprimer \texttt{services/backend/agrorot.db} (option A) ou \texttt{docker compose down -v} (option B). Le cache climatique se reconstruit tout seul. \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\subsection{Tests}
+\begin{center}
+\small
+\begin{longtable}{L{4.6cm}L{4cm}L{6.4cm}}
+\toprule
+\textbf{Problème} & \textbf{Cause probable} & \textbf{Solution} \\
+\midrule
+\endhead
+Tests du backend : « service sur le port … injoignable » & Les dépendances des 3 services ne sont pas installées dans le même environnement & Refaire le \texttt{pip install} avec les trois fichiers \texttt{requirements.txt}. \\
+\texttt{tester\_backend.py} : « Backend injoignable » & Services non lancés, ou mauvaise adresse & Lancer les trois services ; préciser \texttt{-{}-url}. \\
+Une vérification de \texttt{tester\_backend.py} échoue & Voir le nom de la vérification & Relancer avec \texttt{-{}-garder} pour inspecter les données ; regarder le terminal du backend au même moment ; chercher le code d'erreur ci-dessus. \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+% =====================================================================
+\section{Annexe — Variables de configuration}
+
+À mettre dans \texttt{.env} (Docker) ou dans le terminal avant \texttt{uvicorn} (option A). Les valeurs par défaut
+conviennent pour tester en local.
+
+\begin{center}
+\small
+\begin{longtable}{L{5.2cm}L{1.9cm}L{7.8cm}}
+\toprule
+\textbf{Variable} & \textbf{Service} & \textbf{Rôle (valeur par défaut)} \\
+\midrule
+\endhead
+\texttt{JWT\_SECRET} & backend & Clé de signature des jetons. \textbf{À changer avant la mise en ligne} (48 caractères aléatoires). \\
+\texttt{APP\_ENV} & backend & \texttt{development} ; \texttt{production} refuse une clé faible. \\
+\texttt{DATABASE\_URL} & backend & \texttt{sqlite:///./agrorot.db} ; accepte aussi une adresse PostgreSQL. \\
+\texttt{CORE\_SERVICE\_URL}, \texttt{DATA\_SERVICE\_URL} & backend & \texttt{http://localhost:8002} et \texttt{http://localhost:8001}. \\
+\texttt{CORS\_ORIGINS} & backend & Adresse du frontend (\texttt{http://localhost:3000}). \\
+\texttt{PUBLIC\_URL} & backend & Adresse publique, utilisée dans les liens d'invitation. \\
+\texttt{ACCESS\_TOKEN\_MINUTES}, \texttt{REFRESH\_TOKEN\_DAYS} & backend & Durée des jetons (60 min, 7 jours). \\
+\texttt{MONITORING\_INTERVAL\_HOURS} & backend & Fréquence de la surveillance (24 ; 0 = désactivée). \\
+\texttt{POWER\_SIMULE} & data-service & \texttt{1} = NASA POWER simulé (tests hors ligne). \\
+\texttt{PREVISION\_SIMULEE} & data-service & \texttt{sec}, \texttt{pluie\_forte}, \texttt{chaleur}, \texttt{normal} : prévision simulée. \\
+\texttt{METEOMATICS\_USER}, \texttt{METEOMATICS\_PASSWORD} & data-service & Identifiants Meteomatics (sinon Open-Meteo). \\
+\texttt{NASA\_POWER\_TIMEOUT\_S}, \texttt{NASA\_POWER\_PREFETCH\_TIMEOUT\_S} & data-service & Délais d'attente de NASA POWER (5 s à l'affichage, 120 s au préchargement). \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\begin{idee}[Liste de contrôle avant la présentation]
+\begin{itemize}
+\item[\sym{☐}] Les 3 suites de tests passent (36, 18, 18).
+\item[\sym{☐}] \texttt{verifier\_chaine.py -{}-reel} fonctionne sur la machine de démo.
+\item[\sym{☐}] \texttt{tester\_backend.py} : 44/44.
+\item[\sym{☐}] \texttt{preparer\_demo.py -{}-surveillance} lancé la veille (cache NASA rempli, notifications prêtes).
+\item[\sym{☐}] \texttt{/api/v1/health} vérifié juste avant de présenter.
+\item[\sym{☐}] Sur le serveur : \texttt{JWT\_SECRET} changé, \texttt{APP\_ENV=production}, HTTPS actif.
+\end{itemize}
+\end{idee}
+
+\end{document}

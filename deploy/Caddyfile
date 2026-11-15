@@ -1,0 +1,11 @@
+# HTTPS automatique (Let's Encrypt). Remplacer les domaines, pointer leurs DNS (A) vers l'IP du serveur.
+api.agrorot.example {
+	encode gzip
+	reverse_proxy backend:8000
+}
+
+# Si le frontend Next tourne sur le même serveur (sinon : Vercel, supprimer ce bloc)
+agrorot.example {
+	encode gzip
+	reverse_proxy frontend:3000
+}

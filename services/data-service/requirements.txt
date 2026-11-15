@@ -1,0 +1,8 @@
+fastapi>=0.110
+uvicorn[standard]
+pydantic>=2
+httpx
+pandas
+numpy
+pytest
+# optionnels (fichiers pré-agrégés) : xarray, netCDF4, rasterio

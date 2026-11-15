@@ -1,0 +1,32 @@
+# Production sur un VPS :  docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d --build
+services:
+  backend:
+    ports: !reset []              # plus de port public : seul Caddy parle au backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: production          # le backend refuse de démarrer si JWT_SECRET est faible
+      PUBLIC_URL: https://agrorot.example
+      CORS_ORIGINS: https://agrorot.example
+  data-service:
+    restart: unless-stopped
+  agrorot-core:
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [backend]
+
+  # Optionnel : le frontend sur la même machine (dossier ../frontend avec son Dockerfile Next « standalone »)
+  # frontend:
+  #   build: ../frontend
+  #   restart: unless-stopped
+  #   environment:
+  #     AGROROT_API_URL: http://backend:8000/api/v1   # appel serveur à serveur, réseau Docker interne
+
+volumes:
+  caddy-data:

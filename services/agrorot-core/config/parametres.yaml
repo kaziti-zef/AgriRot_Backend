@@ -1,0 +1,92 @@
+# Paramètres du scoring : valeurs de départ, à calibrer (T62). Voir principe_scoring.pdf.
+# Aucune constante agronomique ne doit être écrite en dur dans le code.
+
+aptitude:
+  seuil: 0.3                    # pré-filtre A(c) >= seuil
+  # Cultures très courtes (folon : 45 j) conduites dans une seule saison : la borne HAUTE de pluie annuelle
+  # d'ECOCROP n'a pas de sens pour elles ; l'excès d'eau est jugé par le drainage (C6) et le bilan S2.
+  cycle_court_jours: 60
+
+s1:
+  lambda_chaleur: 0.5
+  marge_chaleur_c: 5            # jours de chaleur = Tmax > T_opt_max + marge
+
+s2:
+  part_pluie_efficace: 0.8      # Peff = 0,8 x P
+  seuil_satisfaction: 0.8       # sigma* : une année "réussie" couvre 80 % du besoin
+  # Cultures peu sensibles à la sécheresse (manioc, patate douce, plantes de service…) : elles réduisent leur
+  # feuillage et reprennent après la saison sèche ; leur rendement baisse moins qu'en proportion du déficit
+  # (Ky < 1, FAO-33). Une année « réussie » n'exige donc que 65 % du besoin couvert. Calibrage T62.
+  seuil_par_sensibilite: {faible: 0.65, moyenne: 0.8, forte: 0.8}
+  # Réserve du sol : l'eau de pluie en excès d'un mois reste disponible les mois suivants, dans la limite de
+  # p x RU x profondeur racinaire (FAO-56 ch. 8 ; RU = eau utile du sol en mm par mètre, FAO-56 tableau 19).
+  fraction_p: 0.5
+  reserve_utile_mm_par_m: {sableux: 80, sablo-limoneux: 120, limoneux: 150, argilo-limoneux: 160, argileux: 170, inconnu: 130}
+  eta: {faible: 0.5, moyenne: 1.0, forte: 1.5}
+
+s3:
+  nu_fix: 3
+  nu_bes: 1
+  nu_seq: 2
+  nu_pre: 1
+  b: {faible: 1, moyen: 2, fort: 3}
+  m: {faible: 1, moyen: 2, fort: 3}
+  m_jachere: 1
+  part_azote: 0.6
+  bornes_n_par_culture: [-4, 3]   # normalisation de N moyen par culture semée
+  bornes_m_par_culture: [0, 3]
+
+s4:
+  couverture_max: {faible: 0.4, moyenne: 0.7, forte: 0.9}
+  # part de la couverture maximale atteinte à chaque stade
+  facteur_stade: {initial: 0.25, developpement: 0.65, mi_saison: 1.0, fin: 0.8}
+  pente_ref_pct: 15
+  nb_fenetres_risque: 2
+
+s5:
+  delta: {courte: 0.3, moyenne: 0.6, longue: 0.85, tres_longue: 0.95}
+  rho: 0.3
+  p_max: 3
+  p_crit: 1.5
+  gravite: {faible: 1, moyenne: 2, forte: 3}
+  phi_famille: 2
+  pression_initiale_si_observe: 1.5
+  pi0: 6.0                      # échelle de S5 = 100 exp(-Pi / pi0) (calibré : bonne rotation ~ 60)
+  h: {hote_fort: 1.0, hote_modere: 0.5}
+
+agregation:
+  penalite_violation_dure: 0.10      # G x (1 - 0,10 par règle dure violée, par culture)
+  penalite_violation_max: 0.50
+  poids_planchers: {S1: 0.15, S5: 0.15}   # non réglables par l'agriculteur
+  poids_equilibres:                         # utilisés si l'agriculteur n'a rien saisi
+    water_saving: 0.1667
+    income: 0.1667
+    soil_health: 0.1667
+    nitrogen: 0.1667
+    erosion_control: 0.1667
+    fodder: 0.1667
+
+confiance:
+  base_defaut: 0.4
+  penalite_a_verifier: 0.05      # par culture de la rotation marquée a_verifier
+  penalite_a_verifier_max: 0.15
+  penalite_source: {live: 0.0, fallback_cache: 0.05, fallback_local: 0.25}
+  penalite_synthetique: 0.2
+  penalite_pratiques_inconnues: 0.05
+  seuils: {elevee: 0.80, moyenne: 0.60}
+
+resilience:
+  scenarios:
+    - {rain_delta_pct: -20, temp_delta_c: 0}
+    - {rain_delta_pct: 0, temp_delta_c: 2}
+    - {rain_delta_pct: -20, temp_delta_c: 2}
+
+generateur:
+  largeur_faisceau: 120          # nombre de rotations partielles gardées à chaque saison
+  cultures_par_saison_max: 10    # cultures candidates gardées par saison (les mieux adaptées)
+  culture_temoin: mais           # monoculture témoin si aucun historique
+  difference_min_alternative: 0.5
+  saisons_par_plante_service: 4   # au plus une plante de service (mucuna, crotalaire) par 4 saisons
+
+scenario:
+  et0_par_degre: 0.03            # +3 % d'ET0 par °C (approximation, à documenter)

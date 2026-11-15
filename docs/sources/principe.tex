@@ -1,0 +1,471 @@
+\documentclass[11pt,a4paper]{article}
+\input{style.tex}
+\lhead{\normalfont\small\color{gris}AgroRot — Comment l'outil propose une rotation}
+\rhead{\normalfont\small\color{gris}NASA Space Apps 2026 · Field Shift}
+
+\begin{document}
+
+\begin{titlepage}
+\vspace*{2.5cm}
+{\color{vert}\Huge\bfseries AgroRot}\par\vspace{6pt}
+{\LARGE Comment l'outil propose une rotation de cultures}\par\vspace{14pt}
+{\large Les données utilisées, les règles, les notes et les explications,\\ expliquées pour tout le monde}\par
+\vspace{1.5cm}
+\begin{idee}[Ce document en une phrase]
+AgroRot compare la rotation actuelle d'un agriculteur avec des milliers d'autres possibles, élimine celles qui
+enfreignent une règle agronomique, note les autres sur six critères à partir de 30 ans de données NASA et de ce
+que l'agriculteur a saisi, puis présente les deux meilleures en expliquant pourquoi, avec des chiffres.
+\end{idee}
+\vfill
+{\color{gris}
+Projet : NASA Space Apps Challenge 2026, défi « Field Shift »\\
+Région pilote : Yaoundé (Cameroun) — parcelle de démonstration à Mbankomo\\
+Version du moteur : novembre 2026}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% =====================================================================
+\section{L'idée en une page}
+
+Une \textbf{rotation}, c'est l'ordre dans lequel on fait se succéder les cultures sur une même parcelle, saison
+après saison. Une bonne rotation garde le sol fertile, casse le cycle des maladies, protège le sol contre
+l'érosion et réduit le risque de manquer d'eau. Une mauvaise rotation (par exemple du maïs saison après saison)
+épuise le sol et nourrit les mêmes parasites.
+
+AgroRot aide l'agriculteur à choisir. Pour une parcelle donnée, il affiche \textbf{trois rotations côte à côte} :
+
+\begin{center}
+\begin{tabularx}{0.95\textwidth}{L{3.3cm}Y}
+\toprule
+\textbf{Rotation} & \textbf{Ce que c'est} \\
+\midrule
+Actuelle (référence) & Ce que l'agriculteur fait aujourd'hui (son historique répété, ou la rotation qu'il prévoit). Elle sert de point de comparaison. \\
+Recommandée & La meilleure rotation trouvée, compte tenu des priorités de l'agriculteur. \\
+Alternative & Une autre très bonne rotation, \emph{vraiment différente} de la recommandée, pour laisser un vrai choix. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Chaque rotation reçoit une \textbf{note sur 100}, le détail de six notes (climat, eau, fertilité, érosion,
+maladies, priorités), un \textbf{indice de résilience} (comment elle tient si le climat se dégrade), un
+\textbf{niveau de confiance} et des \textbf{explications} en phrases simples.
+
+\begin{attention}[Ce que l'outil n'est pas]
+\begin{itemize}
+\item Ce n'est \textbf{pas une « intelligence artificielle » boîte noire} : il n'y a pas d'apprentissage automatique.
+C'est un moteur de \textbf{règles agronomiques} publiées (FAO, NASA) ; chaque note se recalcule à la main et chaque
+phrase d'explication vient d'une règle et d'un chiffre.
+\item Il \textbf{ne remplace pas un agronome} local : il propose, l'agriculteur et son conseiller décident.
+\item Il \textbf{ne prédit pas la météo de l'an prochain} : il juge une rotation sur le climat des 30 dernières
+années (ce qui arrive « en général » et « les mauvaises années »), puis la teste sous des climats plus durs.
+\end{itemize}
+\end{attention}
+
+% =====================================================================
+\section{Petit vocabulaire}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{3.6cm}Y}
+\toprule
+\textbf{Mot} & \textbf{Sens dans AgroRot} \\
+\midrule
+Saison S1 / S2 & À Yaoundé, deux saisons des pluies par an : \textbf{S1} (semis en mars, pluies jusqu'en juin) et \textbf{S2} (semis en août, pluies jusqu'en novembre). Une rotation sur 6 saisons couvre donc 3 ans. \\
+Culture longue & Culture de 200 jours ou plus (manioc, igname…). Elle occupe plusieurs saisons d'affilée ; on l'affiche « suite » sur la saison suivante. \\
+Jachère & Saison de repos, sans culture. \\
+Plante de service & Plante semée pour le sol et non pour la récolte : mucuna, crotalaire (couvrent le sol, apportent de l'azote, réduisent certains parasites). \\
+Légumineuse & Famille de plantes (arachide, niébé, haricot, soja, mucuna…) qui fixent l'azote de l'air et enrichissent le sol. \\
+Famille botanique & Les plantes d'une même famille partagent souvent les mêmes maladies : on évite de les enchaîner. \\
+ET0 & « Évapotranspiration de référence » : l'eau que l'air « pompe » chaque jour au sol et aux plantes (mm/jour). Plus il fait chaud, sec et venteux, plus elle est forte. \\
+Kc & Coefficient de la culture : une culture en pleine croissance consomme \(K_c \times \text{ET0}\). Le Kc est faible au semis, fort à la floraison. \\
+Bioagresseur & Maladie, ravageur, nématode ou plante parasite qui attaque les cultures. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% =====================================================================
+\section{Les données utilisées}
+
+AgroRot croise trois types de données : \textbf{le climat et le terrain} (satellites et modèles NASA),
+\textbf{les connaissances sur les cultures} (FAO et littérature agronomique), et \textbf{ce que l'agriculteur sait de sa parcelle}.
+
+\subsection{Climat et terrain (NASA)}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{3.1cm}L{4.4cm}Y}
+\toprule
+\textbf{Source} & \textbf{Ce qu'on prend} & \textbf{À quoi ça sert} \\
+\midrule
+\textbf{NASA POWER} (point journalier, communauté « AG ») & Température moyenne, minimale et maximale, pluie, humidité, vent, rayonnement solaire, \textbf{chaque jour de 1996 à 2025} (30 ans, environ 11\,000 jours) au point de la parcelle & Base de tout le calcul : climat mois par mois, années sèches, jours de forte chaleur, pluies intenses, ET0, détection des saisons \\
+ET0 Penman-Monteith (méthode FAO-56) & Calculée par AgroRot à partir des données POWER (méthode simplifiée de Hargreaves si un paramètre manque) & Besoin en eau des cultures (critère Eau) \\
+\textbf{SRTM} (relief) & Altitude et pente de la parcelle & Altitude maximale de chaque culture ; risque d'érosion (critère Érosion) \\
+\textbf{SMAP} (humidité du sol) et \textbf{MODIS NDVI} (vigueur de la végétation) & Valeurs mensuelles pré-téléchargées sur la zone pilote & Affichées dans le diagnostic pour aider l'agriculteur à comparer avec ce qu'il voit ; elles ne changent pas les notes \\
+Prévisions météo (Meteomatics, sinon Open-Meteo) & 30 derniers jours + 10 prochains jours & Uniquement pour la \textbf{surveillance} après le choix d'une rotation (partie~\ref{sec:surveillance}) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{attention}[Si Internet ou NASA POWER ne répondent pas]
+Le service de données applique un « plan B » : il utilise d'abord la copie en cache (moins de 7 jours), sinon une
+copie plus ancienne, sinon une \textbf{vraie série NASA POWER de Yaoundé (1996–2025) livrée avec l'application}.
+L'écran affiche alors un bandeau (« données en cache » / « données locales ») et la confiance baisse un peu.
+Le calcul fonctionne toujours.
+\end{attention}
+
+\subsection{Connaissances sur les cultures}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{3.8cm}Y}
+\toprule
+\textbf{Fichier} & \textbf{Contenu et sources} \\
+\midrule
+Fiche culture (\texttt{crops\_cm.csv}) & \textbf{28 cultures} du Cameroun (maïs, manioc, arachide, niébé, haricot, igname, macabo, patate douce, plantain, tomate, piment, gombo, folon, ndolè, soja, sésame, riz, coton, cacao, palmier…, plus mucuna et crotalaire). Pour chacune : températures et pluies optimales et limites (\textbf{FAO ECOCROP}), durée du cycle, stades et Kc (\textbf{FAO-56}), pH, drainage, profondeur des racines, besoin en azote, azote fixé, résidus, couverture du sol, sensibilité à la sécheresse, délai de retour, usages (vente, alimentation, fourrage), bioagresseurs principaux. Une colonne « à vérifier » signale les valeurs estimées. 16 de ces cultures entrent en rotation à Yaoundé (les arbres comme le cacao ou le palmier n'entrent pas en rotation). \\
+Table des bioagresseurs & Pour chaque maladie ou parasite noté : les cultures hôtes (fortes ou modérées), la gravité, la persistance dans le sol ou les résidus, et l'effet des cultures « assainissantes » (ex. : la crotalaire réduit les nématodes à galles). \\
+Calendrier régional & Mois de semis et de fin des pluies de S1 et S2 à Yaoundé (FAO Crop Calendar, à confirmer avec l'IRAD). Les saisons détectées dans les données NASA ne l'ajustent que si elles restent cohérentes (± 1 mois). \\
+Paramètres du moteur (\texttt{parametres.yaml}) & Tous les seuils et coefficients des règles, réunis dans un seul fichier lisible : aucune valeur agronomique n'est cachée dans le code. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Ce que l'agriculteur saisit}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{3.4cm}Y}
+\toprule
+\textbf{Saisie} & \textbf{Utilisation} \\
+\midrule
+Contour de la parcelle (points sur la carte) & Surface, centre (pour aller chercher le climat NASA de ce point exact), altitude et pente \\
+Sol : texture, pH, drainage, matière organique, pente & Règles de sol (pH, drainage), réserve d'eau du sol (selon la texture), érosion ; chaque valeur manquante fait baisser la confiance \\
+Eau : irrigation, eau disponible en saison sèche & Bilan d'eau (critère Eau) \\
+Pratiques : engrais, part des résidus laissés au champ & Fertilité (critère Sol) \\
+Historique : cultures des 3 dernières saisons & Construit la rotation « actuelle » et sert de point de départ pour les délais de retour et les maladies \\
+Maladies déjà observées & Pression de départ des bioagresseurs \\
+Priorités (classement de 6 objectifs) & Poids des critères (partie~\ref{sec:note}) \\
+Cultures exclues, cultures qui se vendent localement & Une culture exclue n'est jamais proposée ; le revenu ne compte que pour les cultures qui ont un débouché \\
+Corrections du climat (« il pleut moins en juillet chez moi ») & Ajustent la série NASA mois par mois (pluie en \%, température en °C) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% =====================================================================
+\clearpage
+\section{Le chemin d'un calcul}
+
+Quand l'agriculteur clique sur « Calculer », voici ce qui se passe, en un peu plus d'une seconde :
+
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={rectangle,rounded corners=3pt,draw=vert,fill=vertclair,thick,minimum width=4.3cm,minimum height=1cm,align=center,font=\small},
+  data/.style={rectangle,rounded corners=3pt,draw=bleu,fill=bleuclair,thick,minimum width=3.6cm,minimum height=0.9cm,align=center,font=\small},
+  fl/.style={-{Latex[length=2.5mm]},thick,gris}]
+\node[data] (n) {Climat NASA\\(30 ans, au point)};
+\node[data,right=0.6cm of n] (f) {Fiche culture,\\bioagresseurs};
+\node[data,right=0.6cm of f] (a) {Saisies de\\l'agriculteur};
+\node[box,below=0.9cm of f] (e1) {\textbf{1. Filtre d'aptitude}\\cultures possibles ici};
+\node[box,below=0.5cm of e1] (e2) {\textbf{2. Générateur}\\des milliers de rotations};
+\node[box,below=0.5cm of e2] (e3) {\textbf{3. Règles éliminatoires}\\C0 à C7};
+\node[box,below=0.5cm of e3] (e4) {\textbf{4. Six notes} S1 à S6\\+ note globale sur 100};
+\node[box,below=0.5cm of e4] (e5) {\textbf{5. Choix} : recommandée\\+ alternative différente};
+\node[box,below=0.5cm of e5] (e6) {\textbf{6. Résilience, confiance,}\\\textbf{explications}};
+\draw[fl] (n.south) -- (e1.north west);
+\draw[fl] (f.south) -- (e1.north);
+\draw[fl] (a.south) -- (e1.north east);
+\draw[fl] (e1) -- (e2); \draw[fl] (e2) -- (e3); \draw[fl] (e3) -- (e4); \draw[fl] (e4) -- (e5); \draw[fl] (e5) -- (e6);
+\draw[fl,dashed] (e4.east) -- ++(1.5,0) |- node[pos=0.25,right,font=\footnotesize,align=left]{boucle :\\on garde\\les meilleures} (e2.east);
+\end{tikzpicture}
+\end{center}
+
+La rotation actuelle de l'agriculteur passe par les mêmes étapes 3 à 6, pour être comparée équitablement.
+
+% =====================================================================
+\section{Étape 1 — Quelles cultures sont possibles ici ?}
+
+Pour chaque culture, on compare le climat moyen de la parcelle (température annuelle, pluie annuelle) à ce que la
+culture aime, d'après ECOCROP. On calcule une \textbf{aptitude} entre 0 et 1 :
+
+\begin{itemize}
+\item 1 si la température et la pluie sont dans la plage idéale de la culture ;
+\item qui diminue progressivement quand on s'approche des limites ;
+\item 0 au-delà des limites, ou si la parcelle est plus haute que l'altitude maximale de la culture.
+\end{itemize}
+
+Les cultures dont l'aptitude est \textbf{inférieure à 0,3} sont écartées dès le départ. Avec une irrigation
+déclarée, la pluie n'est plus un facteur limitant (aptitude « pluie » d'au moins 0,8). Pour les cultures très
+courtes (60 jours ou moins, comme le folon), seule la limite basse de pluie compte : elles sont cultivées dans une
+seule saison et les limites « annuelles » d'ECOCROP n'ont pas de sens pour elles.
+
+% =====================================================================
+\section{Étape 2 — Fabriquer des rotations à comparer}
+
+Le nombre de rotations possibles est énorme : avec 10 cultures candidates par saison sur 6 saisons, cela fait un
+million de combinaisons. Le moteur ne les essaie pas toutes : il construit les rotations \textbf{saison par
+saison} et, à chaque saison, ne garde que les \textbf{120 meilleurs débuts de rotation} (technique dite « recherche
+en faisceau »). C'est comme un concours avec des éliminatoires à chaque tour.
+
+Deux garde-fous évitent des propositions absurdes :
+\begin{itemize}
+\item au plus \textbf{une saison sans récolte} (jachère ou plante de service) toutes les 4 saisons : l'agriculteur doit pouvoir manger et vendre ;
+\item une culture longue (manioc) occupe automatiquement les saisons qu'elle couvre.
+\end{itemize}
+
+% =====================================================================
+\section{Étape 3 — Les règles éliminatoires}
+
+Certaines erreurs sont rédhibitoires. Une rotation qui enfreint une \textbf{règle dure} n'est jamais proposée.
+La rotation actuelle, elle, est notée même si elle enfreint des règles, mais elle perd \textbf{10 \% de sa note par
+règle dure enfreinte} (une fois par culture concernée, au maximum 50 \%), et l'explication le dit.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{1cm}L{3.4cm}YL{1.6cm}}
+\toprule
+\textbf{Code} & \textbf{Règle} & \textbf{Ce qu'on vérifie} & \textbf{Type} \\
+\midrule
+C0 & Culture exclue & L'agriculteur a dit qu'il ne veut pas (ou ne peut pas) faire cette culture & Absolue \\
+C1 & Climat & Nuits trop froides ou jours trop chauds pour la culture (on regarde les 10 \% d'années les plus froides et les 10 \% les plus chaudes), pluie annuelle hors limites & Dure \\
+C2 & Saison & La culture doit tenir dans la saison des pluies où elle est semée. Exception : une culture longue peu sensible à la sécheresse (manioc) peut traverser la saison sèche & Dure \\
+C3 & Chevauchement & On ne peut pas semer sur une parcelle encore occupée par une culture longue & Dure \\
+C4 & Délai de retour & Une culture ne revient pas sur la même parcelle avant son délai (ex. : maïs 1 an, manioc 2 ans) & Dure \\
+C5 & Même famille & Deux cultures de la même famille à la suite (maïs puis maïs, ou maïs puis riz) & Souple : pénalisée dans la note Maladies \\
+C6 & Sol & pH hors de la plage de la culture (avec une tolérance de 0,5), ou sol mal drainé pour une culture qui ne le supporte pas & Dure \\
+C7 & Pression de parasites & Un bioagresseur atteint un niveau critique au fil des saisons & Souple : alerte \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Si aucune rotation ne respecte toutes les règles (par exemple quand l'agriculteur a exclu presque toutes les
+cultures), le moteur relâche les règles C4 et C5 et l'affiche clairement (« règles secondaires assouplies »).
+
+% =====================================================================
+\section{Étape 4 — Les six notes}
+
+Chaque rotation qui passe les règles reçoit six notes sur 100. Chacune répond à une question simple.
+
+\subsection*{S1 — Climat : « Les cultures sont-elles dans leurs bonnes températures ? »}
+Pour chaque culture, on mesure la part de son cycle passée dans sa plage de température idéale (ECOCROP), avec une
+baisse progressive vers les limites. On retire une pénalité pour les \textbf{jours de forte chaleur} pendant la
+floraison (plus de 5 °C au-dessus de l'optimum), comptés sur les 30 années.
+
+\subsection*{S2 — Eau : « Combien d'années sur 10 la pluie couvre-t-elle le besoin des cultures ? »}
+C'est le cœur du calcul climatique, selon la méthode FAO-56 :
+\begin{enumerate}
+\item besoin de la culture, mois par mois : \(K_c \times \text{ET0}\) (le Kc suit les stades : semis, croissance, floraison, maturité) ;
+\item eau disponible : 80 \% de la pluie (le reste ruisselle ou s'évapore) + l'irrigation éventuelle ;
+\item \textbf{réserve du sol} : l'eau en trop d'un mois humide reste disponible les mois suivants, dans la limite de
+ce que le sol peut retenir (selon la texture) dans la zone des racines ;
+\item on refait ce calcul pour \textbf{chacune des 30 années} et on compte les années « réussies », où au moins
+80 \% du besoin est couvert (65 \% pour les cultures peu sensibles à la sécheresse comme le manioc ou la patate
+douce, qui réduisent leur feuillage puis repartent).
+\end{enumerate}
+La note est d'autant plus basse que les années ratées sont fréquentes et que la culture est sensible à la sécheresse.
+
+\begin{exemple}[Exemple]
+Le maïs semé en S1 à Mbankomo couvre son besoin 29 années sur 30 : excellent. Le macabo semé en S2 traverse la
+saison sèche de décembre à février et ne réussit presque jamais sans irrigation : mauvaise note Eau, et en plus la
+règle C2 l'élimine.
+\end{exemple}
+
+\subsection*{S3 — Fertilité du sol : « La rotation enrichit-elle ou épuise-t-elle le sol ? »}
+Un bilan par points, saison par saison :
+\begin{itemize}
+\item \textbf{azote} : +3 pour une légumineuse ; −1, −2 ou −3 selon le besoin en azote de la culture ; un bonus
+quand une légumineuse précède une culture exigeante (arachide puis maïs) ; une pénalité quand deux cultures
+exigeantes se suivent (moins forte si l'agriculteur met de l'engrais) ;
+\item \textbf{matière organique} : points selon la quantité de résidus de la culture et la part laissée au champ, plus un bonus pour la fumure organique.
+\end{itemize}
+Le total (60 \% azote, 40 \% matière organique) est ramené sur 100.
+
+\subsection*{S4 — Érosion : « Le sol est-il couvert quand tombent les grosses pluies ? »}
+Pour chaque mois de la rotation, on regarde la \textbf{part des pluies intenses de l'année} qui tombe ce mois-là
+(calculée sur 30 ans de NASA POWER) et \textbf{à quel point le sol est couvert} (sol nu, culture jeune, culture
+développée, plante de couverture). Un mois de grosses pluies sur sol nu coûte cher, surtout si la pente est forte
+(version simplifiée de l'équation universelle de perte en terre). Les explications indiquent le mois le plus risqué
+et suggèrent une plante de couverture.
+
+\subsection*{S5 — Maladies et ravageurs : « Les parasites ont-ils de quoi se nourrir saison après saison ? »}
+Pour chaque bioagresseur, on simule une \textbf{pression} qui :
+\begin{itemize}
+\item \textbf{monte} quand une culture hôte est en place (fortement pour un hôte fort, moins pour un hôte modéré) ;
+\item \textbf{redescend} doucement quand il n'y a pas d'hôte (vite pour un parasite de courte durée, très lentement pour un parasite qui survit des années dans le sol) ;
+\item \textbf{chute} quand une culture assainissante passe (crotalaire contre les nématodes, par exemple) ;
+\item part d'un niveau plus élevé si l'agriculteur a déjà observé ce problème.
+\end{itemize}
+On simule la rotation deux fois de suite et on note le deuxième passage (le régime « installé »). Plus la pression
+totale, pondérée par la gravité, est forte, plus la note baisse. Enchaîner deux cultures de la même famille (C5)
+ajoute une pénalité.
+
+\subsection*{S6 — Vos priorités : « La rotation sert-elle ce que l'agriculteur veut ? »}
+Part des saisons qui portent une culture \textbf{vendable sur ses marchés} (si le revenu compte pour lui), une
+culture qui donne du \textbf{fourrage} (si l'élevage compte), et un peu de poids pour l'alimentation familiale.
+Une culture « vendable » sans débouché local déclaré ne compte pas pour le revenu, et l'explication le signale.
+
+% =====================================================================
+\section{La note globale et le rôle des priorités}\label{sec:note}
+
+La note globale est une \textbf{moyenne pondérée} des six notes :
+\[
+G = w_1 S_1 + w_2 S_2 + w_3 S_3 + w_4 S_4 + w_5 S_5 + w_6 S_6 \qquad (w_1 + \dots + w_6 = 1)
+\]
+puis la pénalité éventuelle des règles dures (étape 3).
+
+Les poids viennent des \textbf{priorités} de l'agriculteur. Il classe six objectifs (économiser l'eau, revenu,
+santé du sol, azote, lutte contre l'érosion, fourrage) ; le classement est transformé en poids par une méthode
+standard d'aide à la décision (« Rank Order Centroid ») : le premier objectif pèse 41 \%, le deuxième 24 \%, puis
+16 \%, 10 \%, 6 \% et 3 \%. Ces objectifs sont ensuite répartis sur les critères :
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Objectif de l'agriculteur} & \textbf{Critère qui en profite} \\
+\midrule
+Économiser l'eau & S2 Eau \\
+Revenu, fourrage & S6 Priorités \\
+Azote & S3 Fertilité \\
+Santé du sol & moitié S3 Fertilité, moitié S5 Maladies \\
+Lutte contre l'érosion & S4 Érosion \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{attention}[Deux critères protégés]
+Le climat (S1) et les maladies (S5) gardent toujours \textbf{au moins 15 \%} chacun, quelles que soient les
+priorités : une rotation qui ignore le climat ou qui nourrit les parasites ne doit jamais sortir en tête parce que
+l'agriculteur a tout misé sur le revenu. Sans priorités saisies, les six objectifs pèsent autant.
+\end{attention}
+
+\begin{exemple}[Exemple : l'agriculteur classe « économiser l'eau » en premier, puis revenu, santé du sol, azote, érosion, fourrage]
+Poids obtenus : Eau 29 \%, Maladies 20 \%, Priorités 19 \%, Climat 15 \%, Fertilité 13 \%, Érosion 4 \%.
+\end{exemple}
+
+% =====================================================================
+\section{Étape 5 — Choisir la recommandée et l'alternative}
+
+\begin{itemize}
+\item La \textbf{recommandée} est la rotation qui a la meilleure note globale parmi celles qui respectent toutes les règles dures.
+\item L'\textbf{alternative} est la meilleure rotation qui diffère de la recommandée sur \textbf{au moins la moitié
+des saisons} et qui utilise \textbf{au moins un tiers de cultures différentes}. Sans cette condition, l'alternative
+serait souvent la même rotation décalée d'une saison, ce qui n'offre aucun vrai choix.
+\item Chacune reçoit un nom qui dit son point fort (« économie d'eau d'abord », « santé des cultures »…).
+\end{itemize}
+
+L'agriculteur peut ensuite \textbf{remplacer une culture à la main} : la rotation modifiée est recalculée, les
+règles enfreintes sont signalées et la note est mise à jour. Il garde la main.
+
+% =====================================================================
+\section{Étape 6 — Résilience, confiance et explications}
+
+\subsection{Résilience : « Et si le climat se dégrade ? »}
+On recalcule la rotation sous trois climats plus durs : \textbf{20 \% de pluie en moins}, \textbf{2 °C de plus},
+et \textbf{les deux à la fois}. L'indice de résilience est la note dans le pire de ces trois cas divisée par la
+note normale (plafonné à 1). Un indice de 0,9 signifie que la rotation garde 90 \% de sa note dans le pire cas.
+
+Indépendamment, l'écran « Et si… » permet à l'agriculteur de tester son propre scénario : pluie de −30 \% à
++30 \%, température de 0 à +3 °C, horizon 0, 5 ou 10 ans. La chaleur augmente aussi l'ET0 (environ +3 \% par °C).
+
+\subsection{Confiance}
+La confiance (élevée, moyenne, faible) dit \textbf{à quel point on peut se fier au résultat}, pas s'il est bon.
+Elle part de la qualité des informations sur le sol (valeur mesurée, estimée ou absente) et baisse quand :
+les données climatiques viennent du secours plutôt que de NASA POWER en direct, des valeurs de la fiche culture
+sont marquées « à vérifier », ou les pratiques ne sont pas renseignées. Élevée à partir de 0,80, moyenne à partir
+de 0,60.
+
+\subsection{Explications}
+Chaque calcul garde la trace des règles qui ont pesé, avec leurs chiffres. Le moteur les trie par importance et
+les range en cinq rubriques :
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{3.6cm}Y}
+\toprule
+\textbf{Rubrique} & \textbf{Exemple réel (Mbankomo)} \\
+\midrule
+Pourquoi & « Fertilité du sol (S3) : 48 contre 26 pour votre rotation actuelle. » \\
+Preuves & « Bilan hydrique FAO-56 (Kc × ET0, 80 \% de la pluie efficace) sur NASA POWER, 1996–2025. » \\
+Bénéfices & « Arachide (légumineuse) avant Maïs : apport d'azote pour une culture exigeante (environ 40 à 100 kg N/ha selon la littérature). » \\
+Informations manquantes & « Présence réelle de bioagresseurs non renseignée : pression initiale supposée nulle. » \\
+Risques à vérifier sur place & « Sol nu en juillet, mois qui reçoit 7 \% des pluies intenses de l'année (pente 6 \%). Piste : une couverture (Mucuna) à ce moment-là. » \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% =====================================================================
+\section{Un exemple complet : la parcelle de Mbankomo}
+
+Parcelle de démonstration près de Yaoundé : sol argilo-limoneux, pH 5,8, pente d'environ 3°, pas d'irrigation,
+historique « maïs, maïs, manioc », priorité « économiser l'eau », gombo exclu. Climat : vraie série NASA POWER
+1996–2025 (environ 1\,460 mm de pluie par an). Rotation sur 6 saisons (3 ans).
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{L{2.6cm}Ycccccccc}
+\toprule
+\textbf{Rotation} & \textbf{Saisons 1 à 6} & \textbf{S1} & \textbf{S2} & \textbf{S3} & \textbf{S4} & \textbf{S5} & \textbf{S6} & \textbf{Note} & \textbf{Résil.} \\
+\midrule
+Actuelle & maïs, maïs, manioc, (suite), maïs, manioc & 100 & 97 & 26 & 83 & 64 & 96 & \textbf{65} & 0,84 \\
+Recommandée & arachide, maïs, mucuna, maïs, manioc, (suite) & 100 & 99 & 48 & 85 & 81 & 82 & \textbf{85} & 0,88 \\
+Alternative & maïs, patate douce, crotalaire, maïs, manioc, (suite) & 100 & 99 & 41 & 84 & 84 & 81 & \textbf{85} & 0,89 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\textbf{Comment lire ce tableau :}
+\begin{itemize}
+\item La rotation actuelle est très bonne pour le revenu (S6 = 96 : maïs et manioc se vendent) mais \textbf{épuise
+le sol} (S3 = 26) et \textbf{nourrit les parasites} (S5 = 64). Elle enfreint aussi des délais de retour (le maïs
+revient après 5 mois au lieu d'un an ; le manioc revient trop vite) : 2 cultures concernées, donc −20 \% sur sa note.
+\item La recommandée place des \textbf{légumineuses avant le maïs} (arachide, mucuna) : la fertilité double presque
+et les maladies reculent. Elle perd un peu sur le revenu (une saison de mucuna ne se vend pas) mais gagne 20 points.
+\item L'alternative fait un autre choix (patate douce, crotalaire contre les nématodes) pour une note équivalente.
+\end{itemize}
+
+\begin{exemple}[Et si la pluie baisse de 30 \% et la température monte de 2 °C ?]
+La rotation actuelle tombe à \textbf{50} (sa note Eau passe de 97 à 67). Le moteur propose alors une
+recommandée adaptée (niébé, maïs, mucuna, maïs, niébé, maïs) qui garde \textbf{85}. C'est le message du défi
+« Field Shift » : changer de rotation permet de s'adapter à un climat qui change.
+\end{exemple}
+
+% =====================================================================
+\section{Après le choix : la surveillance de la rotation}\label{sec:surveillance}
+
+Quand l'agriculteur sauvegarde une rotation, elle devient la rotation \textbf{surveillée} de la parcelle. Chaque
+jour, l'outil compare la \textbf{météo des 30 derniers jours et la prévision des 10 prochains jours} à ce que la
+rotation suppose. Il sait où on en est (avant le semis, fenêtre de semis, culture en place, entre deux cultures)
+et envoie une notification à tous les membres de la ferme (agriculteur, co-exploitant, conseiller) en cas de besoin :
+
+\begin{center}
+\begin{tabularx}{\textwidth}{L{4.2cm}Y}
+\toprule
+\textbf{Notification} & \textbf{Quand} \\
+\midrule
+Bonnes conditions pour semer / Retarder le semis & Autour de la date de semis prévue : au moins 40 mm de pluie (10 jours passés + 7 jours prévus), ou moins de 20 mm \\
+Manque d'eau probable & Culture en place sans irrigation : sur 3 semaines, le besoin de la culture dépasse nettement la pluie (seuil plus bas pour les cultures sensibles à la sécheresse) \\
+Forte pluie prévue & Un jour prévu à 50 mm ou plus (critique à 80 mm), avec des conseils selon la pente et la culture \\
+Fortes chaleurs & Au moins 2 jours prévus au-dessus de ce que supporte la culture \\
+Saison anormale / Rotation plus adaptée & Pluie du dernier mois sous 60 \% ou au-dessus de 160 \% de la normale : le moteur recalcule la rotation « si la saison continue ainsi ». Si la note baisse de 10 points ou plus, il propose de relancer le calcul. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Une même alerte n'est pas renvoyée deux fois en 7 jours. Chaque notification contient des conseils concrets
+(pailler, désherber, curer les rigoles, attendre une pluie de 20 mm avant de semer…).
+
+% =====================================================================
+\section{Limites et honnêteté}
+
+\begin{itemize}
+\item \textbf{Précision du climat} : NASA POWER décrit une maille d'environ 50 km. Le relief local, un bas-fond ou
+une forêt voisine peuvent changer les choses : c'est pourquoi l'agriculteur peut corriger la pluie et la température mois par mois.
+\item \textbf{Fiche culture} : les valeurs viennent de bases internationales (ECOCROP, FAO-56) ; certaines sont
+estimées et marquées « à vérifier ». Elles doivent être validées avec des agronomes locaux (IRAD, par exemple).
+\item \textbf{Ce qui n'est pas modélisé} : les prix du marché, la main-d'œuvre disponible au jour le jour, les
+variétés locales, les associations de cultures dans la même saison.
+\item \textbf{Le jugement reste humain} : l'outil propose, explique et alerte ; l'agriculteur et son conseiller décident.
+\end{itemize}
+
+\begin{idee}[Pour aller plus loin (équipe technique)]
+Les formules exactes sont dans le document technique « Principe de scoring » (LaTeX). Tous les seuils sont dans
+\texttt{services/agrorot-core/config/parametres.yaml}, et les choix de calibrage sont expliqués dans
+\texttt{services/agrorot-core/README.md}. Les règles de surveillance sont en tête de
+\texttt{services/backend/app/domain/surveillance.py}.
+\end{idee}
+
+\end{document}

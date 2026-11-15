@@ -1,0 +1,142 @@
+{
+  "contexte": {
+    "region": "cm_yaounde",
+    "premiere_annee": 2027,
+    "premiere_saison": "S1",
+    "climat": {
+      "serie_mensuelle": [
+        {
+          "annee": 1995,
+          "mois": 1,
+          "pluie_mm": 19.0,
+          "t_moy_c": 24.71,
+          "t_min_c": 18.67,
+          "t_max_c": 30.76,
+          "et0_mm": 105.0,
+          "pluie_intense_mm": 0.0,
+          "jours_pluie_intense": 0,
+          "jours_chaleur": {
+            "30": 26,
+            "32": 2,
+            "34": 0,
+            "36": 0,
+            "38": 0
+          }
+        },
+        {
+          "annee": 1995,
+          "mois": 2,
+          "pluie_mm": 53.8,
+          "t_moy_c": 25.56,
+          "t_min_c": 19.67,
+          "t_max_c": 31.45,
+          "et0_mm": 112.2,
+          "pluie_intense_mm": 0.0,
+          "jours_pluie_intense": 0,
+          "jours_chaleur": {
+            "30": 24,
+            "32": 8,
+            "34": 1,
+            "36": 0,
+            "38": 0
+          }
+        },
+        {
+          "annee": 1995,
+          "mois": 3,
+          "pluie_mm": 189.4,
+          "t_moy_c": 24.94,
+          "t_min_c": 19.67,
+          "t_max_c": 30.21,
+          "et0_mm": 110.1,
+          "pluie_intense_mm": 93.7,
+          "jours_pluie_intense": 2,
+          "jours_chaleur": {
+            "30": 18,
+            "32": 3,
+            "34": 0,
+            "36": 0,
+            "38": 0
+          }
+        }
+      ],
+      "saisons": [],
+      "source_status": "live",
+      "synthetique": true
+    },
+    "sol": {
+      "texture": "argilo-limoneux",
+      "ph": 5.8,
+      "drainage": "moyen",
+      "organic_matter": "moyenne",
+      "slope_deg": 3.2,
+      "elevation_m": 742,
+      "confidences": {
+        "ph": 1.0,
+        "texture": 1.0,
+        "organic_matter": 1.0,
+        "drainage": 1.0,
+        "slope_deg": 0.7
+      }
+    },
+    "eau": {
+      "has_irrigation": false,
+      "dry_season_availability": "faible"
+    },
+    "pratiques": {
+      "fertilizer_use": "aucun",
+      "residue_return": 0.5
+    },
+    "historique": [
+      {
+        "season_index": -3,
+        "crop_id": "mais"
+      },
+      {
+        "season_index": -2,
+        "crop_id": "mais"
+      },
+      {
+        "season_index": -1,
+        "crop_id": "manioc"
+      }
+    ],
+    "planned_rotation": [],
+    "pest_history": [],
+    "poids": {
+      "water_saving": 0.41,
+      "income": 0.24,
+      "soil_health": 0.16,
+      "nitrogen": 0.1,
+      "erosion_control": 0.06,
+      "fodder": 0.03
+    },
+    "contraintes": {
+      "equipment": [
+        "houe"
+      ],
+      "labor": "familiale",
+      "excluded_crops": [
+        "gombo"
+      ],
+      "market_available_crops": [
+        "mais",
+        "niebe",
+        "arachide",
+        "manioc",
+        "patate_douce",
+        "haricot"
+      ]
+    }
+  },
+  "sequence": [
+    {
+      "season": 1,
+      "crop_id": "mais"
+    },
+    {
+      "season": 2,
+      "crop_id": "mais"
+    }
+  ]
+}

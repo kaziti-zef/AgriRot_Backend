@@ -1,0 +1,2 @@
+code,name,country,crops_file,lat_min,lat_max,lon_min,lon_max
+cm_yaounde,Yaoundé et périphérie,cm,crops_cm.csv,3.4,4.3,11.0,12.0

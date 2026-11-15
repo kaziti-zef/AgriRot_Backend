@@ -1,0 +1,17 @@
+# Calendrier cultural régional - zone forestière bimodale (Yaoundé et périphérie)
+# À CONFIRMER avec le FAO Crop Calendar ou l'IRAD (point ouvert du plan).
+# Mois numérotés de 1 (janvier) à 12 (décembre).
+region: cm_yaounde
+saisons_par_an: 2
+saisons:
+  S1:
+    libelle: "Première saison des pluies"
+    semis: 3          # mi-mars
+    fin_pluies: 6     # la petite saison sèche commence en juillet
+  S2:
+    libelle: "Deuxième saison des pluies"
+    semis: 8          # mi-août
+    fin_pluies: 11    # la grande saison sèche commence en décembre
+tolerance_mois: 1     # tau de la contrainte C2
+# Mots qui, dans la colonne zones_cameroun des bioagresseurs, désignent cette région
+mots_zones: ["Toutes", "Centre", "Sud", "Littoral", "maraîch", "banan", "pluvial"]

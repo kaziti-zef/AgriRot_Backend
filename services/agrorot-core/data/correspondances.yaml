@@ -1,0 +1,35 @@
+# Correspondances entre les valeurs saisies (contrat d'API v2) et les valeurs du moteur.
+# Valeurs indicatives, à valider (T62).
+
+# Textures du contrat -> classes ECOCROP (colonne texture_optimale)
+texture_vers_ecocrop:
+  sableux: légère
+  sablo-limoneux: légère
+  limoneux: moyenne
+  argilo-limoneux: moyenne
+  argileux: lourde
+
+# Réserve utile du sol, en mm d'eau par mètre de sol (ordre de grandeur FAO-56, tableau 19)
+reserve_utile_mm_par_m:
+  sableux: 70
+  sablo-limoneux: 110
+  limoneux: 170
+  argilo-limoneux: 160
+  argileux: 150
+
+# Irrigation disponible (contrat : water.dry_season_availability) -> mm par mois apportables
+irrigation_mm_par_mois:
+  nulle: 0
+  faible: 20
+  moyenne: 50
+  bonne: 100
+
+# Usage d'engrais (extension du contrat : fertilizer_use) -> effet sur S3
+engrais:
+  aucun: {facteur_penalite_sequence: 1.0, bonus_matiere_organique: 0.0}
+  organique: {facteur_penalite_sequence: 0.8, bonus_matiere_organique: 0.5}
+  mineral: {facteur_penalite_sequence: 0.5, bonus_matiere_organique: 0.0}
+  mixte: {facteur_penalite_sequence: 0.5, bonus_matiere_organique: 0.5}
+
+# Part des résidus restitués au sol (extension : residue_return) si non renseignée
+residus_restitues_defaut: 0.5

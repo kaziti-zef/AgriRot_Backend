@@ -1,0 +1,27 @@
+services:
+  backend:
+    build: ./services/backend
+    ports: ["8000:8000"]
+    env_file: .env
+    environment:
+      DATA_SERVICE_URL: http://data-service:8001
+      CORE_SERVICE_URL: http://agrorot-core:8002
+      DATABASE_URL: sqlite:////data/agrorot.db
+    volumes: ["backend-data:/data"]
+    depends_on: [data-service, agrorot-core]
+
+  data-service:
+    build: ./services/data-service
+    env_file: .env
+    volumes: ["climate-cache:/cache"]
+    # interne : pas de port exposé (décommenter pour déboguer)
+    # ports: ["8001:8001"]
+
+  agrorot-core:
+    build: ./services/agrorot-core
+    # interne : pas de port exposé
+    # ports: ["8002:8002"]
+
+volumes:
+  backend-data:
+  climate-cache:

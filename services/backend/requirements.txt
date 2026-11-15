@@ -1,0 +1,13 @@
+fastapi>=0.110
+uvicorn[standard]
+pydantic>=2
+httpx
+sqlalchemy>=2
+pyjwt
+bcrypt
+shapely
+pyproj
+reportlab
+pytest
+numpy
+psycopg[binary]   # si DATABASE_URL pointe vers PostgreSQL

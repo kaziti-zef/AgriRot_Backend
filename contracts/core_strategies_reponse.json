@@ -1,0 +1,499 @@
+{
+ "applied_scenario": {
+  "rain_delta_pct": -15.0,
+  "temp_delta_c": 1.5,
+  "horizon_years": 5
+ },
+ "warnings": [],
+ "strategies": [
+  {
+   "id": "existing",
+   "type": "existing",
+   "name": "Rotation actuelle (référence)",
+   "score": 50.3,
+   "scores": {
+    "S1": 98.5,
+    "S2": 66.6,
+    "S3": 25.9,
+    "S4": 82.6,
+    "S5": 63.7,
+    "S6": 95.9
+   },
+   "delta_vs_existing": {},
+   "resilience_index": 0.87,
+   "confidence": {
+    "score": 0.86,
+    "level": "élevée"
+   },
+   "sequence": [
+    {
+     "season": 1,
+     "label": "2027-S1",
+     "crop_id": "mais",
+     "crop_name": "Maïs",
+     "sowing_month": 3,
+     "harvest_month": 6,
+     "continuation": false,
+     "season_score": 63.7,
+     "modified_by_user": false
+    },
+    {
+     "season": 2,
+     "label": "2027-S2",
+     "crop_id": "mais",
+     "crop_name": "Maïs",
+     "sowing_month": 8,
+     "harvest_month": 11,
+     "continuation": false,
+     "season_score": 83.6,
+     "modified_by_user": false
+    },
+    {
+     "season": 3,
+     "label": "2028-S1",
+     "crop_id": "manioc",
+     "crop_name": "Manioc",
+     "sowing_month": 3,
+     "harvest_month": 3,
+     "continuation": false,
+     "season_score": 89.7,
+     "modified_by_user": false
+    },
+    {
+     "season": 4,
+     "label": "2028-S2",
+     "crop_id": "manioc",
+     "crop_name": "Manioc",
+     "sowing_month": 3,
+     "harvest_month": 3,
+     "continuation": true,
+     "season_score": 89.7,
+     "modified_by_user": false
+    },
+    {
+     "season": 5,
+     "label": "2029-S1",
+     "crop_id": "mais",
+     "crop_name": "Maïs",
+     "sowing_month": 3,
+     "harvest_month": 6,
+     "continuation": false,
+     "season_score": 65.1,
+     "modified_by_user": false
+    },
+    {
+     "season": 6,
+     "label": "2029-S2",
+     "crop_id": "manioc",
+     "crop_name": "Manioc",
+     "sowing_month": 8,
+     "harvest_month": 8,
+     "continuation": false,
+     "season_score": 84.2,
+     "modified_by_user": false
+    }
+   ],
+   "violations": [
+    {
+     "code": "C4",
+     "message": "Maïs revient après 0,4 an au lieu de 1",
+     "season": 2,
+     "crop_id": "mais",
+     "details": {
+      "ecart_ans": 0.42,
+      "delai_retour_ans": 1.0
+     }
+    },
+    {
+     "code": "C4",
+     "message": "Manioc revient après 1,6 an au lieu de 2",
+     "season": 3,
+     "crop_id": "manioc",
+     "details": {
+      "ecart_ans": 1.58,
+      "delai_retour_ans": 2.0
+     }
+    },
+    {
+     "code": "C4",
+     "message": "Manioc revient après 1,4 an au lieu de 2",
+     "season": 6,
+     "crop_id": "manioc",
+     "details": {
+      "ecart_ans": 1.42,
+      "delai_retour_ans": 2.0
+     }
+    },
+    {
+     "code": "C5",
+     "message": "Maïs suit Maïs : même famille (Poaceae)",
+     "season": 2,
+     "crop_id": "mais",
+     "details": {
+      "famille": "Poaceae",
+      "precedent": "mais"
+     }
+    },
+    {
+     "code": "C1",
+     "message": "Manioc : chaleur au-delà de sa limite en mois 2",
+     "season": 3,
+     "crop_id": "manioc",
+     "details": {
+      "mois": [
+       2
+      ],
+      "t_abs_max": 35.0
+     }
+    },
+    {
+     "code": "C1",
+     "message": "Manioc : chaleur au-delà de sa limite en mois 2",
+     "season": 6,
+     "crop_id": "manioc",
+     "details": {
+      "mois": [
+       2
+      ],
+      "t_abs_max": 35.0
+     }
+    }
+   ],
+   "explanation": {
+    "why": [
+     "Règle C4 : Maïs revient après 0,4 an au lieu de 1.",
+     "Règle C4 : Manioc revient après 1,6 an au lieu de 2.",
+     "Règle C4 : Manioc revient après 1,4 an au lieu de 2.",
+     "Règle C1 : Manioc : chaleur au-delà de sa limite en mois 2.",
+     "Règle C1 : Manioc : chaleur au-delà de sa limite en mois 2."
+    ],
+    "proofs": [
+     "Bilan hydrique FAO-56 (Kc x ET0, 80 % de la pluie efficace) sur NASA POWER, 1996–2025.",
+     "Températures mensuelles et jours de chaleur : NASA POWER, 1996–2025 ; plages optimales : FAO ECOCROP.",
+     "Fixation d'azote, exigence et résidus : fiche culture (littérature agronomique, ordres de grandeur)."
+    ],
+    "benefits": [
+     "100 % des saisons portent une culture vendable sur vos marchés."
+    ],
+    "information_gaps": [
+     "Présence réelle de bioagresseurs non renseignée : pression initiale supposée nulle."
+    ],
+    "local_risks_to_check": [
+     "Sol peu couvert en septembre, mois qui reçoit 22 % des pluies intenses de l'année (pente 6 %). Piste : une couverture (Mucuna) à ce moment-là.",
+     "Sol nu en juillet, mois qui reçoit 8 % des pluies intenses de l'année (pente 6 %). Piste : une couverture (Mucuna) à ce moment-là.",
+     "Règle C5 : Maïs suit Maïs : même famille (Poaceae)."
+    ]
+   },
+   "off_rotation_advice": [
+    "Chenille légionnaire d'automne : Surveillance précoce des cornets, semis groupés à l'échelle du village, biopesticides, associations maïs-légumineuses",
+    "Mosaïque africaine du manioc : Boutures saines, variétés tolérantes (IITA/IRAD), arrachage des plants malades",
+    "Striure du maïs : Variétés résistantes, semis précoce, éviter de semer près de maïs déjà infecté"
+   ],
+   "non_viable": false
+  },
+  {
+   "id": "recommended",
+   "type": "recommended",
+   "name": "Stratégie recommandée (économie d'eau d'abord)",
+   "score": 75.3,
+   "scores": {
+    "S1": 99.5,
+    "S2": 97.8,
+    "S3": 56.7,
+    "S4": 83.9,
+    "S5": 68.2,
+    "S6": 84.7
+   },
+   "delta_vs_existing": {
+    "S1": 1.0,
+    "S2": 31.2,
+    "S3": 30.8,
+    "S4": 1.3,
+    "S5": 4.5,
+    "S6": -11.2
+   },
+   "resilience_index": 0.83,
+   "confidence": {
+    "score": 0.81,
+    "level": "élevée"
+   },
+   "sequence": [
+    {
+     "season": 1,
+     "label": "2027-S1",
+     "crop_id": "niebe",
+     "crop_name": "Niébé",
+     "sowing_month": 3,
+     "harvest_month": 5,
+     "continuation": false,
+     "season_score": 87.2,
+     "modified_by_user": false
+    },
+    {
+     "season": 2,
+     "label": "2027-S2",
+     "crop_id": "niebe",
+     "crop_name": "Niébé",
+     "sowing_month": 8,
+     "harvest_month": 10,
+     "continuation": false,
+     "season_score": 86.2,
+     "modified_by_user": true
+    },
+    {
+     "season": 3,
+     "label": "2028-S1",
+     "crop_id": "mucuna",
+     "crop_name": "Mucuna",
+     "sowing_month": 3,
+     "harvest_month": 7,
+     "continuation": false,
+     "season_score": 98.7,
+     "modified_by_user": false
+    },
+    {
+     "season": 4,
+     "label": "2028-S2",
+     "crop_id": "mais",
+     "crop_name": "Maïs",
+     "sowing_month": 8,
+     "harvest_month": 11,
+     "continuation": false,
+     "season_score": 98.0,
+     "modified_by_user": false
+    },
+    {
+     "season": 5,
+     "label": "2029-S1",
+     "crop_id": "niebe",
+     "crop_name": "Niébé",
+     "sowing_month": 3,
+     "harvest_month": 5,
+     "continuation": false,
+     "season_score": 88.6,
+     "modified_by_user": false
+    },
+    {
+     "season": 6,
+     "label": "2029-S2",
+     "crop_id": "mais",
+     "crop_name": "Maïs",
+     "sowing_month": 8,
+     "harvest_month": 11,
+     "continuation": false,
+     "season_score": 90.9,
+     "modified_by_user": false
+    }
+   ],
+   "violations": [
+    {
+     "code": "C4",
+     "message": "Niébé revient après 0,4 an au lieu de 2",
+     "season": 2,
+     "crop_id": "niebe",
+     "details": {
+      "ecart_ans": 0.42,
+      "delai_retour_ans": 2.0
+     }
+    },
+    {
+     "code": "C4",
+     "message": "Niébé revient après 1,6 an au lieu de 2",
+     "season": 5,
+     "crop_id": "niebe",
+     "details": {
+      "ecart_ans": 1.58,
+      "delai_retour_ans": 2.0
+     }
+    },
+    {
+     "code": "C5",
+     "message": "Niébé suit Niébé : même famille (Fabaceae)",
+     "season": 2,
+     "crop_id": "niebe",
+     "details": {
+      "famille": "Fabaceae",
+      "precedent": "niebe"
+     }
+    },
+    {
+     "code": "C5",
+     "message": "Mucuna suit Niébé : même famille (Fabaceae)",
+     "season": 3,
+     "crop_id": "mucuna",
+     "details": {
+      "famille": "Fabaceae",
+      "precedent": "niebe"
+     }
+    }
+   ],
+   "explanation": {
+    "why": [
+     "Eau (S2) : 98 contre 67 pour votre rotation actuelle.",
+     "Fertilité du sol (S3) : 57 contre 26 pour votre rotation actuelle.",
+     "Maladies et ravageurs (S5) : 68 contre 64 pour votre rotation actuelle.",
+     "Note globale 75 contre 50, avec vos priorités."
+    ],
+    "proofs": [
+     "Bilan hydrique FAO-56 (Kc x ET0, 80 % de la pluie efficace) sur NASA POWER, 1996–2025.",
+     "Températures mensuelles et jours de chaleur : NASA POWER, 1996–2025 ; plages optimales : FAO ECOCROP.",
+     "Fixation d'azote, exigence et résidus : fiche culture (littérature agronomique, ordres de grandeur)."
+    ],
+    "benefits": [
+     "Mucuna (légumineuse) avant Maïs : apport d'azote pour une culture exigeante (environ 50 à 150 kg N/ha selon la littérature).",
+     "Niébé (légumineuse) avant Maïs : apport d'azote pour une culture exigeante (environ 30 à 100 kg N/ha selon la littérature).",
+     "Mucuna réduit nématodes à galles avant les cultures sensibles.",
+     "Besoin en eau couvert au moins 9 années sur 10 pour chaque culture de la rotation, sans irrigation."
+    ],
+    "information_gaps": [
+     "Présence réelle de bioagresseurs non renseignée : pression initiale supposée nulle."
+    ],
+    "local_risks_to_check": [
+     "Point faible : 2 succession(s) de cultures de la même famille botanique.",
+     "Point faible : Pression de nématodes à galles : Niébé, Maïs le nourrissent saison après saison.",
+     "Point faible : Pression de pourriture du collet (sclérotiniose du sud) : Niébé le nourrit saison après saison.",
+     "Sol nu en juillet, mois qui reçoit 8 % des pluies intenses de l'année (pente 6 %). Piste : une couverture (Mucuna) à ce moment-là.",
+     "Sol nu en novembre, mois qui reçoit 8 % des pluies intenses de l'année (pente 6 %). Piste : une couverture (Mucuna) à ce moment-là."
+    ]
+   },
+   "off_rotation_advice": [
+    "Chenille légionnaire d'automne : Surveillance précoce des cornets, semis groupés à l'échelle du village, biopesticides, associations maïs-légumineuses",
+    "Striure du maïs : Variétés résistantes, semis précoce, éviter de semer près de maïs déjà infecté",
+    "Bruches des légumineuses : Stockage hermétique (sacs triple ensachage PICS), séchage, récolte à temps"
+   ],
+   "non_viable": false
+  },
+  {
+   "id": "alternative",
+   "type": "alternative",
+   "name": "Alternative diversifiée",
+   "score": 82.5,
+   "scores": {
+    "S1": 99.7,
+    "S2": 95.0,
+    "S3": 52.7,
+    "S4": 85.0,
+    "S5": 69.7,
+    "S6": 83.3
+   },
+   "delta_vs_existing": {
+    "S1": 1.2,
+    "S2": 28.4,
+    "S3": 26.8,
+    "S4": 2.4,
+    "S5": 6.0,
+    "S6": -12.6
+   },
+   "resilience_index": 0.92,
+   "confidence": {
+    "score": 0.81,
+    "level": "élevée"
+   },
+   "sequence": [
+    {
+     "season": 1,
+     "label": "2027-S1",
+     "crop_id": "niebe",
+     "crop_name": "Niébé",
+     "sowing_month": 3,
+     "harvest_month": 5,
+     "continuation": false,
+     "season_score": 85.4,
+     "modified_by_user": false
+    },
+    {
+     "season": 2,
+     "label": "2027-S2",
+     "crop_id": "patate_douce",
+     "crop_name": "Patate douce",
+     "sowing_month": 8,
+     "harvest_month": 11,
+     "continuation": false,
+     "season_score": 80.7,
+     "modified_by_user": false
+    },
+    {
+     "season": 3,
+     "label": "2028-S1",
+     "crop_id": "crotalaire",
+     "crop_name": "Crotalaire",
+     "sowing_month": 3,
+     "harvest_month": 5,
+     "continuation": false,
+     "season_score": 97.4,
+     "modified_by_user": false
+    },
+    {
+     "season": 4,
+     "label": "2028-S2",
+     "crop_id": "mais",
+     "crop_name": "Maïs",
+     "sowing_month": 8,
+     "harvest_month": 11,
+     "continuation": false,
+     "season_score": 98.3,
+     "modified_by_user": false
+    },
+    {
+     "season": 5,
+     "label": "2029-S1",
+     "crop_id": "niebe",
+     "crop_name": "Niébé",
+     "sowing_month": 3,
+     "harvest_month": 5,
+     "continuation": false,
+     "season_score": 87.6,
+     "modified_by_user": false
+    },
+    {
+     "season": 6,
+     "label": "2029-S2",
+     "crop_id": "patate_douce",
+     "crop_name": "Patate douce",
+     "sowing_month": 8,
+     "harvest_month": 11,
+     "continuation": false,
+     "season_score": 84.3,
+     "modified_by_user": false
+    }
+   ],
+   "violations": [],
+   "explanation": {
+    "why": [
+     "Eau (S2) : 95 contre 67 pour votre rotation actuelle.",
+     "Fertilité du sol (S3) : 53 contre 26 pour votre rotation actuelle.",
+     "Maladies et ravageurs (S5) : 70 contre 64 pour votre rotation actuelle.",
+     "Note globale 82 contre 50, avec vos priorités.",
+     "Différente de la stratégie recommandée sur 50 % des saisons, pour vous laisser un vrai choix."
+    ],
+    "proofs": [
+     "Bilan hydrique FAO-56 (Kc x ET0, 80 % de la pluie efficace) sur NASA POWER, 1996–2025.",
+     "Températures mensuelles et jours de chaleur : NASA POWER, 1996–2025 ; plages optimales : FAO ECOCROP.",
+     "Fixation d'azote, exigence et résidus : fiche culture (littérature agronomique, ordres de grandeur)."
+    ],
+    "benefits": [
+     "Crotalaire (légumineuse) avant Maïs : apport d'azote pour une culture exigeante (environ 50 à 150 kg N/ha selon la littérature).",
+     "Crotalaire réduit nématodes à galles avant les cultures sensibles.",
+     "Légumineuses présentes (Niébé, Crotalaire) : elles fixent l'azote de l'air.",
+     "83 % des saisons portent une culture vendable sur vos marchés."
+    ],
+    "information_gaps": [
+     "Présence réelle de bioagresseurs non renseignée : pression initiale supposée nulle."
+    ],
+    "local_risks_to_check": [
+     "Point faible : Pression de pourriture du collet (sclérotiniose du sud) : Niébé, Patate douce le nourrissent saison après saison.",
+     "Point faible : Pression de nématodes à galles : Niébé, Patate douce, Maïs le nourrissent saison après saison.",
+     "Sol nu en juillet, mois qui reçoit 8 % des pluies intenses de l'année (pente 6 %). Piste : une couverture (Mucuna) à ce moment-là.",
+     "Sol nu en juin, mois qui reçoit 6 % des pluies intenses de l'année (pente 6 %). Piste : une couverture (Mucuna) à ce moment-là."
+    ]
+   },
+   "off_rotation_advice": [
+    "Chenille légionnaire d'automne : Surveillance précoce des cornets, semis groupés à l'échelle du village, biopesticides, associations maïs-légumineuses",
+    "Striure du maïs : Variétés résistantes, semis précoce, éviter de semer près de maïs déjà infecté",
+    "Maladie virale de la patate douce (SPVD) : Boutures saines prélevées sur plants vigoureux, élimination des plants malades",
+    "Bruches des légumineuses : Stockage hermétique (sacs triple ensachage PICS), séchage, récolte à temps"
+   ],
+   "non_viable": false
+  }
+ ]
+}

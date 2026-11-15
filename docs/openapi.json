@@ -1,0 +1,3705 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "AgroRot API",
+  "version": "2.0.0"
+ },
+ "paths": {
+  "/api/v1/auth/register": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Register",
+    "operationId": "register_api_v1_auth_register_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Inscription"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/auth/login": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Login",
+    "operationId": "login_api_v1_auth_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Connexion"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/auth/refresh": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Refresh",
+    "operationId": "refresh_api_v1_auth_refresh_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Renouvellement"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/auth/logout": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Logout",
+    "operationId": "logout_api_v1_auth_logout_post",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Renouvellement"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/auth/me": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Me",
+    "operationId": "me_api_v1_auth_me_get",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/auth/forgot-password": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Forgot",
+    "description": "Priorité C : sans service d'envoi, le lien est écrit dans les journaux du serveur.",
+    "operationId": "forgot_api_v1_auth_forgot_password_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Oubli"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/auth/reset-password": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Reset",
+    "operationId": "reset_api_v1_auth_reset_password_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Reinit"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/regions": {
+   "get": {
+    "tags": [
+     "referentiel"
+    ],
+    "summary": "Regions",
+    "operationId": "regions_api_v1_regions_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/crops": {
+   "get": {
+    "tags": [
+     "referentiel"
+    ],
+    "summary": "Crops",
+    "operationId": "crops_api_v1_crops_get",
+    "parameters": [
+     {
+      "name": "region",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Region"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/farms": {
+   "post": {
+    "tags": [
+     "farms"
+    ],
+    "summary": "Creer",
+    "operationId": "creer_api_v1_farms_post",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NouvelleFerme"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "farms"
+    ],
+    "summary": "Lister",
+    "operationId": "lister_api_v1_farms_get",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/farms/{farm_id}": {
+   "get": {
+    "tags": [
+     "farms"
+    ],
+    "summary": "Lire",
+    "operationId": "lire_api_v1_farms__farm_id__get",
+    "parameters": [
+     {
+      "name": "farm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Farm Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "farms"
+    ],
+    "summary": "Modifier",
+    "operationId": "modifier_api_v1_farms__farm_id__patch",
+    "parameters": [
+     {
+      "name": "farm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Farm Id"
+      }
+     },
+     {
+      "name": "if-match",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "If-Match"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ModifFerme"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "farms"
+    ],
+    "summary": "Supprimer",
+    "operationId": "supprimer_api_v1_farms__farm_id__delete",
+    "parameters": [
+     {
+      "name": "farm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Farm Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Confirmation"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/farms/{farm_id}/transfer-ownership": {
+   "post": {
+    "tags": [
+     "farms"
+    ],
+    "summary": "Transferer",
+    "operationId": "transferer_api_v1_farms__farm_id__transfer_ownership_post",
+    "parameters": [
+     {
+      "name": "farm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Farm Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Transfert"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/farms/{farm_id}/members": {
+   "get": {
+    "tags": [
+     "members"
+    ],
+    "summary": "Lister",
+    "operationId": "lister_api_v1_farms__farm_id__members_get",
+    "parameters": [
+     {
+      "name": "farm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Farm Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "members"
+    ],
+    "summary": "Ajouter",
+    "operationId": "ajouter_api_v1_farms__farm_id__members_post",
+    "parameters": [
+     {
+      "name": "farm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Farm Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Ajout"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/farms/{farm_id}/members/{member_id}": {
+   "patch": {
+    "tags": [
+     "members"
+    ],
+    "summary": "Modifier",
+    "operationId": "modifier_api_v1_farms__farm_id__members__member_id__patch",
+    "parameters": [
+     {
+      "name": "farm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Farm Id"
+      }
+     },
+     {
+      "name": "member_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Member Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Modif"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "members"
+    ],
+    "summary": "Retirer",
+    "operationId": "retirer_api_v1_farms__farm_id__members__member_id__delete",
+    "parameters": [
+     {
+      "name": "farm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Farm Id"
+      }
+     },
+     {
+      "name": "member_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Member Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels": {
+   "post": {
+    "tags": [
+     "parcels"
+    ],
+    "summary": "Creer",
+    "operationId": "creer_api_v1_parcels_post",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NouvelleParcelle"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/farms/{farm_id}/parcels": {
+   "get": {
+    "tags": [
+     "parcels"
+    ],
+    "summary": "Lister",
+    "operationId": "lister_api_v1_farms__farm_id__parcels_get",
+    "parameters": [
+     {
+      "name": "farm_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Farm Id"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "minimum": 1,
+       "default": 20,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "cursor",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cursor"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}": {
+   "get": {
+    "tags": [
+     "parcels"
+    ],
+    "summary": "Lire",
+    "operationId": "lire_api_v1_parcels__parcel_id__get",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "parcels"
+    ],
+    "summary": "Modifier",
+    "operationId": "modifier_api_v1_parcels__parcel_id__patch",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "if-match",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "If-Match"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ModifParcelle"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "parcels"
+    ],
+    "summary": "Supprimer",
+    "operationId": "supprimer_api_v1_parcels__parcel_id__delete",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/climate": {
+   "get": {
+    "tags": [
+     "climate"
+    ],
+    "summary": "Diagnostic",
+    "operationId": "diagnostic_api_v1_parcels__parcel_id__climate_get",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "year",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Year"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/local-inputs": {
+   "get": {
+    "tags": [
+     "inputs"
+    ],
+    "summary": "Lire Locales",
+    "operationId": "lire_locales_api_v1_parcels__parcel_id__local_inputs_get",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "inputs"
+    ],
+    "summary": "Ecrire Locales",
+    "operationId": "ecrire_locales_api_v1_parcels__parcel_id__local_inputs_put",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "if-match",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "If-Match"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DonneesLocales"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/history": {
+   "get": {
+    "tags": [
+     "inputs"
+    ],
+    "summary": "Lire Hist",
+    "operationId": "lire_hist_api_v1_parcels__parcel_id__history_get",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "inputs"
+    ],
+    "summary": "Ecrire Hist",
+    "operationId": "ecrire_hist_api_v1_parcels__parcel_id__history_put",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "if-match",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "If-Match"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Historique"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/preferences": {
+   "get": {
+    "tags": [
+     "inputs"
+    ],
+    "summary": "Lire Pref",
+    "operationId": "lire_pref_api_v1_parcels__parcel_id__preferences_get",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "inputs"
+    ],
+    "summary": "Ecrire Pref",
+    "operationId": "ecrire_pref_api_v1_parcels__parcel_id__preferences_put",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "if-match",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "If-Match"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Preferences"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/strategies": {
+   "post": {
+    "tags": [
+     "strategies"
+    ],
+    "summary": "Calculer",
+    "operationId": "calculer_api_v1_parcels__parcel_id__strategies_post",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RequeteStrategies"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/strategies/computed/{computation_id}": {
+   "get": {
+    "tags": [
+     "strategies"
+    ],
+    "summary": "Relire",
+    "description": "AJOUT au contrat : relit un calcul non sauvegardé (mémorisé 24 h), pour afficher le détail d'une\nstratégie (/strategies/{existing|recommended|alternative}) sans relancer le moteur.",
+    "operationId": "relire_api_v1_parcels__parcel_id__strategies_computed__computation_id__get",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "computation_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Computation Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/strategies/save": {
+   "post": {
+    "tags": [
+     "saved"
+    ],
+    "summary": "Retenir",
+    "operationId": "retenir_api_v1_parcels__parcel_id__strategies_save_post",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Sauvegarde"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/strategies/saved": {
+   "get": {
+    "tags": [
+     "saved"
+    ],
+    "summary": "Historique",
+    "operationId": "historique_api_v1_parcels__parcel_id__strategies_saved_get",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "minimum": 1,
+       "default": 20,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "cursor",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cursor"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/strategies/saved/{saved_id}": {
+   "get": {
+    "tags": [
+     "saved"
+    ],
+    "summary": "Detail",
+    "operationId": "detail_api_v1_parcels__parcel_id__strategies_saved__saved_id__get",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "saved_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Saved Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/strategies/saved/{saved_id}/notes": {
+   "post": {
+    "tags": [
+     "saved"
+    ],
+    "summary": "Noter",
+    "operationId": "noter_api_v1_parcels__parcel_id__strategies_saved__saved_id__notes_post",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "saved_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Saved Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NouvelleNote"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/strategies/saved/{saved_id}/notes/{note_id}": {
+   "delete": {
+    "tags": [
+     "saved"
+    ],
+    "summary": "Effacer Note",
+    "operationId": "effacer_note_api_v1_parcels__parcel_id__strategies_saved__saved_id__notes__note_id__delete",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "saved_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Saved Id"
+      }
+     },
+     {
+      "name": "note_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Note Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/strategies/saved/{saved_id}/export.pdf": {
+   "get": {
+    "tags": [
+     "saved"
+    ],
+    "summary": "Export Pdf",
+    "operationId": "export_pdf_api_v1_parcels__parcel_id__strategies_saved__saved_id__export_pdf_get",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "saved_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Saved Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/strategies/saved/{saved_id}/monitoring": {
+   "put": {
+    "tags": [
+     "monitoring"
+    ],
+    "summary": "Basculer",
+    "description": "Choisit la rotation surveillée (une seule par parcelle) ou arrête la surveillance.",
+    "operationId": "basculer_api_v1_parcels__parcel_id__strategies_saved__saved_id__monitoring_put",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "saved_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Saved Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Activation"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/monitoring": {
+   "get": {
+    "tags": [
+     "monitoring"
+    ],
+    "summary": "Etat",
+    "operationId": "etat_api_v1_parcels__parcel_id__monitoring_get",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/parcels/{parcel_id}/monitoring/run": {
+   "post": {
+    "tags": [
+     "monitoring"
+    ],
+    "summary": "Verifier",
+    "description": "Vérifie maintenant (sans attendre la tournée quotidienne). `date` permet de simuler un autre jour.",
+    "operationId": "verifier_api_v1_parcels__parcel_id__monitoring_run_post",
+    "parameters": [
+     {
+      "name": "parcel_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Parcel Id"
+      }
+     },
+     {
+      "name": "date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Date simulée (démo)",
+       "title": "Date"
+      },
+      "description": "Date simulée (démo)"
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/notifications": {
+   "get": {
+    "tags": [
+     "monitoring"
+    ],
+    "summary": "Lister",
+    "operationId": "lister_api_v1_notifications_get",
+    "parameters": [
+     {
+      "name": "unread_only",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "default": false,
+       "title": "Unread Only"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "minimum": 1,
+       "default": 20,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "cursor",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cursor"
+      }
+     },
+     {
+      "name": "severity",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "info",
+          "warning",
+          "critical"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Severity"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/notifications/unread-count": {
+   "get": {
+    "tags": [
+     "monitoring"
+    ],
+    "summary": "Compte",
+    "operationId": "compte_api_v1_notifications_unread_count_get",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/notifications/{notification_id}/read": {
+   "post": {
+    "tags": [
+     "monitoring"
+    ],
+    "summary": "Lue",
+    "operationId": "lue_api_v1_notifications__notification_id__read_post",
+    "parameters": [
+     {
+      "name": "notification_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Notification Id"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/notifications/read-all": {
+   "post": {
+    "tags": [
+     "monitoring"
+    ],
+    "summary": "Toutes Lues",
+    "operationId": "toutes_lues_api_v1_notifications_read_all_post",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/health": {
+   "get": {
+    "tags": [
+     "health"
+    ],
+    "summary": "Health",
+    "operationId": "health_api_v1_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "Activation": {
+    "properties": {
+     "active": {
+      "type": "boolean",
+      "title": "Active"
+     }
+    },
+    "type": "object",
+    "required": [
+     "active"
+    ],
+    "title": "Activation"
+   },
+   "Ajout": {
+    "properties": {
+     "identifier": {
+      "type": "string",
+      "title": "Identifier"
+     },
+     "role": {
+      "type": "string",
+      "enum": [
+       "co_farmer",
+       "advisor"
+      ],
+      "title": "Role"
+     }
+    },
+    "type": "object",
+    "required": [
+     "identifier",
+     "role"
+    ],
+    "title": "Ajout"
+   },
+   "Confirmation": {
+    "properties": {
+     "confirm_name": {
+      "type": "string",
+      "title": "Confirm Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "confirm_name"
+    ],
+    "title": "Confirmation"
+   },
+   "Connexion": {
+    "properties": {
+     "identifier": {
+      "type": "string",
+      "maxLength": 160,
+      "minLength": 3,
+      "title": "Identifier"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "identifier",
+     "password"
+    ],
+    "title": "Connexion"
+   },
+   "Contraintes": {
+    "properties": {
+     "equipment": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Equipment",
+      "default": []
+     },
+     "labor": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "familiale",
+         "salariée",
+         "mixte"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Labor"
+     },
+     "excluded_crops": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Excluded Crops",
+      "default": []
+     },
+     "market_available_crops": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Market Available Crops",
+      "default": []
+     }
+    },
+    "type": "object",
+    "title": "Contraintes"
+   },
+   "Correction": {
+    "properties": {
+     "field": {
+      "type": "string",
+      "enum": [
+       "rain_mm",
+       "temp_avg_c"
+      ],
+      "title": "Field"
+     },
+     "month": {
+      "type": "integer",
+      "maximum": 12.0,
+      "minimum": 1.0,
+      "title": "Month"
+     },
+     "mode": {
+      "type": "string",
+      "const": "adjustment",
+      "title": "Mode",
+      "default": "adjustment"
+     },
+     "value": {
+      "type": "number",
+      "title": "Value"
+     }
+    },
+    "type": "object",
+    "required": [
+     "field",
+     "month",
+     "value"
+    ],
+    "title": "Correction"
+   },
+   "DonneesLocales": {
+    "properties": {
+     "soil": {
+      "$ref": "#/components/schemas/Sol",
+      "default": {
+       "slope_confirmed": false
+      }
+     },
+     "water": {
+      "$ref": "#/components/schemas/Eau",
+      "default": {
+       "has_irrigation": false,
+       "dry_season_availability": "nulle"
+      }
+     },
+     "nasa_overrides": {
+      "items": {
+       "$ref": "#/components/schemas/Correction"
+      },
+      "type": "array",
+      "title": "Nasa Overrides",
+      "default": []
+     },
+     "practices": {
+      "$ref": "#/components/schemas/Pratiques",
+      "default": {}
+     },
+     "pest_history": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Pest History",
+      "default": []
+     },
+     "planned_rotation": {
+      "items": {
+       "$ref": "#/components/schemas/Etape"
+      },
+      "type": "array",
+      "title": "Planned Rotation",
+      "default": []
+     }
+    },
+    "type": "object",
+    "title": "DonneesLocales"
+   },
+   "Eau": {
+    "properties": {
+     "has_irrigation": {
+      "type": "boolean",
+      "title": "Has Irrigation",
+      "default": false
+     },
+     "dry_season_availability": {
+      "type": "string",
+      "enum": [
+       "nulle",
+       "faible",
+       "moyenne",
+       "bonne"
+      ],
+      "title": "Dry Season Availability",
+      "default": "nulle"
+     }
+    },
+    "type": "object",
+    "title": "Eau"
+   },
+   "Etape": {
+    "properties": {
+     "season": {
+      "type": "integer",
+      "maximum": 12.0,
+      "minimum": 1.0,
+      "title": "Season"
+     },
+     "crop_id": {
+      "type": "string",
+      "title": "Crop Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "season",
+     "crop_id"
+    ],
+    "title": "Etape"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "Historique": {
+    "properties": {
+     "seasons": {
+      "items": {
+       "$ref": "#/components/schemas/SaisonHist"
+      },
+      "type": "array",
+      "maxItems": 3,
+      "title": "Seasons"
+     }
+    },
+    "type": "object",
+    "title": "Historique"
+   },
+   "Inscription": {
+    "properties": {
+     "full_name": {
+      "type": "string",
+      "maxLength": 120,
+      "minLength": 2,
+      "title": "Full Name"
+     },
+     "identifier": {
+      "type": "string",
+      "maxLength": 160,
+      "minLength": 3,
+      "title": "Identifier"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "Password"
+     },
+     "invitation_token": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Invitation Token"
+     }
+    },
+    "type": "object",
+    "required": [
+     "full_name",
+     "identifier",
+     "password"
+    ],
+    "title": "Inscription"
+   },
+   "Modif": {
+    "properties": {
+     "role": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "co_farmer",
+         "advisor"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Role"
+     },
+     "resend_invitation": {
+      "type": "boolean",
+      "title": "Resend Invitation",
+      "default": false
+     }
+    },
+    "type": "object",
+    "title": "Modif"
+   },
+   "ModifFerme": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 120,
+        "minLength": 2
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "region": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Region"
+     }
+    },
+    "type": "object",
+    "title": "ModifFerme"
+   },
+   "ModifParcelle": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 120,
+        "minLength": 1
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "geometry": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Geometry"
+     }
+    },
+    "type": "object",
+    "title": "ModifParcelle"
+   },
+   "NouvelleFerme": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "maxLength": 120,
+      "minLength": 2,
+      "title": "Name"
+     },
+     "region": {
+      "type": "string",
+      "title": "Region"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "region"
+    ],
+    "title": "NouvelleFerme"
+   },
+   "NouvelleNote": {
+    "properties": {
+     "kind": {
+      "type": "string",
+      "enum": [
+       "observation",
+       "validation"
+      ],
+      "title": "Kind"
+     },
+     "text": {
+      "type": "string",
+      "maxLength": 1000,
+      "minLength": 1,
+      "title": "Text"
+     }
+    },
+    "type": "object",
+    "required": [
+     "kind",
+     "text"
+    ],
+    "title": "NouvelleNote"
+   },
+   "NouvelleParcelle": {
+    "properties": {
+     "farm_id": {
+      "type": "string",
+      "title": "Farm Id"
+     },
+     "name": {
+      "type": "string",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Name"
+     },
+     "geometry": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Geometry"
+     }
+    },
+    "type": "object",
+    "required": [
+     "farm_id",
+     "name",
+     "geometry"
+    ],
+    "title": "NouvelleParcelle"
+   },
+   "Oubli": {
+    "properties": {
+     "identifier": {
+      "type": "string",
+      "title": "Identifier"
+     }
+    },
+    "type": "object",
+    "required": [
+     "identifier"
+    ],
+    "title": "Oubli"
+   },
+   "Pratiques": {
+    "properties": {
+     "fertilizer_use": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "aucun",
+         "organique",
+         "mineral",
+         "mixte"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fertilizer Use"
+     },
+     "residue_return": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 1.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Residue Return"
+     }
+    },
+    "type": "object",
+    "title": "Pratiques"
+   },
+   "Preferences": {
+    "properties": {
+     "ranking": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string",
+         "enum": [
+          "water_saving",
+          "income",
+          "soil_health",
+          "nitrogen",
+          "erosion_control",
+          "fodder"
+         ]
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ranking"
+     },
+     "weights": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "number"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Weights"
+     },
+     "constraints": {
+      "$ref": "#/components/schemas/Contraintes",
+      "default": {
+       "equipment": [],
+       "excluded_crops": [],
+       "market_available_crops": []
+      }
+     }
+    },
+    "type": "object",
+    "title": "Preferences"
+   },
+   "Reinit": {
+    "properties": {
+     "token": {
+      "type": "string",
+      "title": "Token"
+     },
+     "new_password": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "New Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "token",
+     "new_password"
+    ],
+    "title": "Reinit"
+   },
+   "Renouvellement": {
+    "properties": {
+     "refresh_token": {
+      "type": "string",
+      "title": "Refresh Token"
+     }
+    },
+    "type": "object",
+    "required": [
+     "refresh_token"
+    ],
+    "title": "Renouvellement"
+   },
+   "RequeteStrategies": {
+    "properties": {
+     "horizon_seasons": {
+      "type": "integer",
+      "maximum": 12.0,
+      "minimum": 2.0,
+      "title": "Horizon Seasons",
+      "default": 6
+     },
+     "priorities": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "number"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Priorities"
+     },
+     "constraints": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Constraints"
+     },
+     "climate_scenario": {
+      "$ref": "#/components/schemas/ScenarioClimat",
+      "default": {
+       "rain_delta_pct": 0.0,
+       "temp_delta_c": 0.0,
+       "horizon_years": 0
+      }
+     },
+     "manual_overrides": {
+      "additionalProperties": {
+       "additionalProperties": {
+        "type": "string"
+       },
+       "type": "object"
+      },
+      "type": "object",
+      "title": "Manual Overrides",
+      "default": {}
+     }
+    },
+    "type": "object",
+    "title": "RequeteStrategies"
+   },
+   "SaisonHist": {
+    "properties": {
+     "season_index": {
+      "type": "integer",
+      "maximum": -1.0,
+      "minimum": -3.0,
+      "title": "Season Index"
+     },
+     "label": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Label"
+     },
+     "crop_id": {
+      "type": "string",
+      "title": "Crop Id"
+     },
+     "botanical_family": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Botanical Family"
+     }
+    },
+    "type": "object",
+    "required": [
+     "season_index",
+     "crop_id"
+    ],
+    "title": "SaisonHist"
+   },
+   "Sauvegarde": {
+    "properties": {
+     "computation_id": {
+      "type": "string",
+      "title": "Computation Id"
+     },
+     "strategy_id": {
+      "type": "string",
+      "enum": [
+       "existing",
+       "recommended",
+       "alternative"
+      ],
+      "title": "Strategy Id"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 1000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "monitor": {
+      "type": "boolean",
+      "title": "Monitor",
+      "default": true
+     }
+    },
+    "type": "object",
+    "required": [
+     "computation_id",
+     "strategy_id"
+    ],
+    "title": "Sauvegarde"
+   },
+   "ScenarioClimat": {
+    "properties": {
+     "rain_delta_pct": {
+      "type": "number",
+      "title": "Rain Delta Pct",
+      "default": 0
+     },
+     "temp_delta_c": {
+      "type": "number",
+      "title": "Temp Delta C",
+      "default": 0
+     },
+     "horizon_years": {
+      "type": "integer",
+      "title": "Horizon Years",
+      "default": 0
+     }
+    },
+    "type": "object",
+    "title": "ScenarioClimat"
+   },
+   "Sol": {
+    "properties": {
+     "texture": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "sableux",
+         "limoneux",
+         "argileux",
+         "argilo-limoneux",
+         "sablo-limoneux"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Texture"
+     },
+     "ph": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 10.0,
+        "minimum": 3.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ph"
+     },
+     "drainage": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "faible",
+         "moyen",
+         "bon"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Drainage"
+     },
+     "organic_matter": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "faible",
+         "moyenne",
+         "élevée"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Organic Matter"
+     },
+     "slope_deg": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 90.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Slope Deg"
+     },
+     "slope_confirmed": {
+      "type": "boolean",
+      "title": "Slope Confirmed",
+      "default": false
+     }
+    },
+    "type": "object",
+    "title": "Sol"
+   },
+   "Transfert": {
+    "properties": {
+     "member_id": {
+      "type": "string",
+      "title": "Member Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "member_id"
+    ],
+    "title": "Transfert"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   }
+  }
+ }
+}

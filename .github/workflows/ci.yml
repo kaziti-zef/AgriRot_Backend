@@ -1,0 +1,25 @@
+# T60 - Intégration continue : lint + tests des 3 services à chaque push et pull request.
+name: ci
+on: [push, pull_request]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [agrorot-core, data-service, backend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dépendances (le backend lance aussi les deux autres services)
+        run: |
+          pip install ruff
+          pip install -r services/agrorot-core/requirements.txt
+          pip install -r services/data-service/requirements.txt
+          pip install -r services/backend/requirements.txt
+      - name: Lint
+        run: ruff check services/${{ matrix.service }}/app --select E,F,W --ignore E501
+      - name: Tests
+        working-directory: services/${{ matrix.service }}
+        run: pytest -q

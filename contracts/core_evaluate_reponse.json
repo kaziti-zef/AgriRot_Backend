@@ -1,0 +1,105 @@
+{
+  "strategy": {
+    "id": "existing",
+    "type": "existing",
+    "name": "Rotation évaluée",
+    "score": 69.1,
+    "scores": {
+      "S1": 100.0,
+      "S2": 100.0,
+      "S3": 20.0,
+      "S4": 82.6,
+      "S5": 40.0,
+      "S6": 100.0
+    },
+    "delta_vs_existing": {},
+    "resilience_index": 0.99,
+    "confidence": {
+      "score": 0.71,
+      "level": "moyenne"
+    },
+    "sequence": [
+      {
+        "season": 1,
+        "label": "2027-S1",
+        "crop_id": "mais",
+        "crop_name": "Maïs",
+        "sowing_month": 3,
+        "harvest_month": 6,
+        "continuation": false,
+        "season_score": 82.7,
+        "modified_by_user": false
+      },
+      {
+        "season": 2,
+        "label": "2027-S2",
+        "crop_id": "mais",
+        "crop_name": "Maïs",
+        "sowing_month": 8,
+        "harvest_month": 11,
+        "continuation": false,
+        "season_score": 82.2,
+        "modified_by_user": false
+      }
+    ],
+    "violations": [
+      {
+        "code": "C4",
+        "message": "Maïs revient après 0,4 an au lieu de 1",
+        "season": 2,
+        "crop_id": "mais",
+        "details": {
+          "ecart_ans": 0.42,
+          "delai_retour_ans": 1.0
+        }
+      },
+      {
+        "code": "C5",
+        "message": "Maïs suit Maïs : même famille (Poaceae)",
+        "season": 2,
+        "crop_id": "mais",
+        "details": {
+          "famille": "Poaceae",
+          "precedent": "mais"
+        }
+      }
+    ],
+    "explanation": {
+      "why": [
+        "Règle C4 : Maïs revient après 0,4 an au lieu de 1.",
+        "Pression de foreurs de tiges des céréales : Maïs le nourrit saison après saison.",
+        "Pression de nématodes à galles : Maïs le nourrit saison après saison.",
+        "Aucune légumineuse dans la rotation : rien ne restitue l'azote prélevé par les cultures.",
+        "Maïs puis Maïs : deux cultures très exigeantes en azote à la suite."
+      ],
+      "proofs": [
+        "Bilan hydrique FAO-56 (Kc x ET0, 80 % de la pluie efficace) sur série synthétique de test, 1995–2024.",
+        "Températures mensuelles et jours de chaleur : série synthétique de test, 1995–2024 ; plages optimales : FAO ECOCROP.",
+        "Fixation d'azote, exigence et résidus : fiche culture (littérature agronomique, ordres de grandeur)."
+      ],
+      "benefits": [
+        "Besoin en eau couvert au moins 9 années sur 10 pour chaque culture de la rotation, sans irrigation.",
+        "100 % des saisons portent une culture vendable sur vos marchés."
+      ],
+      "information_gaps": [
+        "Présence réelle de bioagresseurs non renseignée : pression initiale supposée nulle."
+      ],
+      "local_risks_to_check": [
+        "Sol peu couvert en mars, mois qui reçoit 8 % des pluies intenses de l'année (pente 6 %). Piste : une couverture (Mucuna) à ce moment-là.",
+        "Règle C5 : Maïs suit Maïs : même famille (Poaceae)."
+      ]
+    },
+    "off_rotation_advice": [
+      "Chenille légionnaire d'automne : Surveillance précoce des cornets, semis groupés à l'échelle du village, biopesticides, associations maïs-légumineuses",
+      "Striure du maïs : Variétés résistantes, semis précoce, éviter de semer près de maïs déjà infecté"
+    ],
+    "non_viable": false
+  },
+  "warnings": [
+    {
+      "code": "SYNTHETIC_CLIMATE",
+      "message": "Série climatique synthétique (jeu de test) : les résultats ne valent pas pour une vraie parcelle.",
+      "details": {}
+    }
+  ]
+}
