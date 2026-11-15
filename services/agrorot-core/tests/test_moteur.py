@@ -194,7 +194,18 @@ def test_sans_historique_monoculture_temoin(ctx_dict):
 def test_rotation_prevue_utilisee(ctx_dict):
     ctx_dict["planned_rotation"] = [{"season": 1, "crop_id": "mais"}, {"season": 2, "crop_id": "niebe"}]
     r = proposer(_req(ctx_dict, horizon_seasons=4))
-    assert [e.crop_id for e in r.strategies[0].sequence] == ["mais", "niebe", "mais", "niebe"]
+    seq = [e.crop_id for e in r.strategies[0].sequence]
+    # Chaque culture prévue vaut une saison (pas de répétition du plan) ; la suite reprend l'historique.
+    habitudes = [h["crop_id"] for h in sorted(ctx_dict.get("historique", []), key=lambda h: h["season_index"])]
+    assert seq[:2] == ["mais", "niebe"]
+    assert seq[2:] == ([habitudes[i % len(habitudes)] for i in range(2)] if habitudes else ["jachere", "jachere"])
+
+
+def test_rotation_prevue_une_saison_par_culture(ctx_dict):
+    ctx_dict["planned_rotation"] = [{"season": 1, "crop_id": "gombo"}]
+    ctx_dict["historique"] = []
+    r = proposer(_req(ctx_dict, horizon_seasons=4))
+    assert [e.crop_id for e in r.strategies[0].sequence] == ["gombo", "jachere", "jachere", "jachere"]
 
 
 # ------------------------------------------------------------------ API HTTP

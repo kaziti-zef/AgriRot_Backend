@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Query
 
 from app import cache
+from app.sources import en_ligne
 from app.sources import pre_agreges as pre
 
 router = APIRouter(tags=["terrain"])
@@ -17,12 +18,15 @@ def terrain(lat: float = Query(..., ge=-90, le=90), lon: float = Query(..., ge=-
     alt, pente = pre.srtm(lat, lon)
     source = "SRTM 30 m"
     if alt is None:
+        alt, pente = en_ligne.srtm(lat, lon)          # SRTM 30 m via OpenTopoData
+        source = "SRTM 30 m (OpenTopoData)"
+    if alt is None:
         source = None
         warnings.append({"code": "SRTM_UNAVAILABLE",
                          "message": "Altitude et pente indisponibles ; renseignez la pente à la main."})
     if not dans_zone_pilote(lat, lon):
         warnings.append({"code": "OUTSIDE_COVERED_REGION",
-                         "message": "Parcelle hors de la zone pilote : SMAP, NDVI et SRTM locaux non disponibles."})
+                         "message": "Parcelle hors de la zone pilote : calendrier des saisons et résultats moins fiables."})
     return {"lat": lat, "lon": lon, "elevation_m": None if alt is None else round(alt),
             "slope_deg": None if pente is None else round(pente, 1), "source": source,
             "soil": {"ph": None, "texture": None, "source": None}, "warnings": warnings}

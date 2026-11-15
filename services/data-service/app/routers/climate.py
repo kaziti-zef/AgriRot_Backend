@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query
 
 from app import climat as C
 from app.processing import climatologie
+from app.sources import en_ligne
 from app.sources import nasa_power as power
 from app.sources import pre_agreges as pre
 
@@ -42,6 +43,9 @@ def prefetch(lat: float = LAT, lon: float = LON):
     """À appeler à l'enregistrement d'une parcelle : télécharge 30 ans de POWER avec un délai long
     (DELAI_LONG) et remplit le cache ; les appels suivants répondent en moins d'une seconde."""
     c = C.calculer(lat, lon, delai=power.DELAI_LONG)
+    # Sources en ligne (sans fichiers pré-agrégés) : humidité du sol et NDVI de la dernière année complète.
+    en_ligne.humidite_sol(lat, lon)
+    en_ligne.precharger_ndvi(lat, lon)
     return {**_entete(c), "jours": len(c.jours)}
 
 
@@ -71,8 +75,12 @@ def diagnostic(lat: float = LAT, lon: float = LON, year: int | None = None):
     norm = climatologie.normales(m)
     annees = sorted(set(m.index.get_level_values(0)))
     annee = year if year in annees else annees[-1]
-    sm = pre.anomalies(pre.serie_mensuelle("smap_monthly.nc", lat, lon))
+    # Fichiers pré-agrégés (SMAP, MODIS) s'ils existent, sinon sources NASA en ligne (en_ligne.py).
+    smap = pre.serie_mensuelle("smap_monthly.nc", lat, lon)
+    sm = pre.anomalies(smap if smap is not None else en_ligne.humidite_sol(lat, lon))
     ndvi = pre.serie_mensuelle("ndvi_monthly.nc", lat, lon)
+    if ndvi is None:
+        ndvi = en_ligne.ndvi_mensuel(lat, lon, annee)
     gel = j.groupby(j.index.month)["t_min"].apply(lambda x: float((x < 0).mean()))
     serie, manquants = [], set()
     for mo in range(1, 13):
@@ -121,8 +129,8 @@ def diagnostic(lat: float = LAT, lon: float = LON, year: int | None = None):
     fortes = [int(mo) for mo, v in intense.items() if v >= 0.15]
     periodes = _periodes(stress, "water_stress") + _periodes(nu, "bare_soil") + _periodes(fortes, "heavy_rain")
     return {"parcel_point": {"lat": lat, "lon": lon}, "year": int(annee), **_entete(c),
-            "grid_resolution_note": "NASA POWER (cellule de 0,5° x 0,625°, environ 55 x 70 km), SMAP (9 km), "
-                                    "MODIS NDVI (250 m, ramené à environ 5 km).",
+            "grid_resolution_note": "NASA POWER (cellule de 0,5° x 0,625°, environ 55 x 70 km), humidité du sol SMAP (9 km) "
+                                    "ou NASA POWER GWETROOT, MODIS NDVI (250 m).",
             "monthly_series": serie, "vulnerable_periods": periodes,
             "missing_indicators": sorted(manquants), "glossary": GLOSSAIRE}
 

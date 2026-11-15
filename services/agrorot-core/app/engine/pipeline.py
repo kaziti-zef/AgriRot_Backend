@@ -31,21 +31,27 @@ def _verifier_culture(crop: str, ctx: Contexte, champ: str):
 
 
 def _existante(ctx: Contexte, n: int, pc: Precalcul) -> tuple[list[EtapeRotation], str]:
-    """Rotation prévue, sinon historique répété, sinon monoculture témoin (CU8-A1)."""
-    if ctx.planned_rotation:
-        prevue = sorted(ctx.planned_rotation, key=lambda e: e.season)
-        crops = [e.crop_id for e in prevue]
-        nom = "Rotation prévue (référence)"
-    elif ctx.historique:
-        crops = [h.crop_id if h.crop_id in REF.cultures else JACHERE
+    """Rotation prévue, sinon historique répété, sinon monoculture témoin (CU8-A1).
+
+    Rotation prévue : chaque culture vaut UNE saison, dans l'ordre (saison 1, 2, 3…), sans être répétée.
+    Les saisons au-delà du plan suivent l'historique répété (les habitudes de l'agriculteur),
+    ou restent en jachère sans historique."""
+    habitudes = [h.crop_id if h.crop_id in REF.cultures else JACHERE
                  for h in sorted(ctx.historique, key=lambda h: h.season_index)]
+    if ctx.planned_rotation:
+        plan = [e.crop_id for e in sorted(ctx.planned_rotation, key=lambda e: e.season)][:n]
+        suite = habitudes or [JACHERE]
+        crops = plan + [suite[i % len(suite)] for i in range(n - len(plan))]
+        nom = "Rotation prévue (référence)"
+    elif habitudes:
+        crops = [habitudes[i % len(habitudes)] for i in range(n)]
         nom = "Rotation actuelle (référence)"
     else:
-        crops = [P()["generateur"]["culture_temoin"]]
+        crops = [P()["generateur"]["culture_temoin"]] * n
         nom = "Monoculture témoin (aucun historique saisi)"
     for i, c in enumerate(crops):
         _verifier_culture(c, ctx, f"existing[{i}]")
-    seq = [EtapeRotation(season=s, crop_id=crops[(s - 1) % len(crops)]) for s in range(1, n + 1)]
+    seq = [EtapeRotation(season=s, crop_id=crops[s - 1]) for s in range(1, n + 1)]
     return normaliser(seq, pc), nom
 
 

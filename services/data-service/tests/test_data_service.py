@@ -17,6 +17,7 @@ LAT, LON = 3.813, 11.452
 @pytest.fixture(autouse=True)
 def cache_temporaire(tmp_path, monkeypatch):
     monkeypatch.setattr(cache, "CACHE_DIR", tmp_path)
+    monkeypatch.setenv("DONNEES_EN_LIGNE", "0")         # pas d'appel réseau (sources en ligne testées à part)
 
 
 @pytest.fixture
@@ -212,3 +213,37 @@ def test_prevision_indisponible_sans_reseau(monkeypatch):
     monkeypatch.setattr(P, "open_meteo", boom)
     r = P.obtenir(3.8, 11.4)
     assert r["status"] == "unavailable" and r["days"] == []
+
+
+# ------------------------------------------------------------------ sources en ligne (en_ligne.py)
+class _Rep:
+    def __init__(self, data):
+        self._d = data
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return self._d
+
+
+def test_srtm_en_ligne_pente(monkeypatch, tmp_path):
+    from app.sources import en_ligne
+    monkeypatch.setenv("DONNEES_EN_LIGNE", "1")
+    monkeypatch.setattr(en_ligne, "DOSSIER", tmp_path)
+    # Pente régulière vers l'est : +3 m par point (environ 31 m) -> environ 5,5 °
+    z = [700, 703, 706] * 3
+    monkeypatch.setattr(en_ligne.httpx, "get", lambda *a, **k: _Rep({"results": [{"elevation": v} for v in z]}))
+    alt, pente = en_ligne.srtm(3.8, 11.5)
+    assert alt == 703 and 5 < pente < 6
+
+
+def test_humidite_sol_en_ligne(monkeypatch, tmp_path):
+    from app.sources import en_ligne
+    monkeypatch.setenv("DONNEES_EN_LIGNE", "1")
+    monkeypatch.setattr(en_ligne, "DOSSIER", tmp_path)
+    brut = {"202401": 0.5, "202402": -999, "202413": 0.6, "202501": 0.7}
+    monkeypatch.setattr(en_ligne.httpx, "get",
+                        lambda *a, **k: _Rep({"properties": {"parameter": {"GWETROOT": brut}}}))
+    s = en_ligne.humidite_sol(3.8, 11.5, fin=2025)
+    assert list(s.values) == [0.5, 0.7]
